@@ -1,5 +1,5 @@
 package hsps.services.logic;
 
 public enum Symbolik {
-	ASS, KEONIG, DAME, BUBE, ZEHN
+	ASS, KOENIG, DAME, BUBE, ZEHN
 }

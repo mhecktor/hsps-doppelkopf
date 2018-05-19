@@ -5,21 +5,28 @@ import java.util.List;
 
 public class Hand {
 
+	private boolean reh;
 	private List<Karte> karten;
-
+	
 	public Hand() {
 		karten = new LinkedList<Karte>();
 	}
 
-	// TODO ausgewaehlte Karte muss entfernt werden
-	public void removeKarte() {
-
+	public void removeKarte( Karte karte ) {
+		karten.remove( karte );
 	}
 
 	public void addKarte( Karte karte ) {
+		if( karte.getSymbolik() == Symbolik.DAME 
+			&& karte.getFarbwert() == Farbwert.KREUZ )
+			reh = true;
 		karten.add( karte );
 	}
-
+	
+	public boolean isReh() {
+		return reh;
+	}
+	
 	public List<Karte> getKarten() {
 		return karten;
 	}

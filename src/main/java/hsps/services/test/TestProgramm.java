@@ -1,17 +1,23 @@
 package hsps.services.test;
 
-import logic.Farbwert;
-import logic.Hand;
-import logic.Karte;
-import logic.Symbolik;
+import logic.Spiel;
+import logic.Spieler;
 
 public class TestProgramm {
 
 	public static void main( String[] args ) {
+		Spiel spiel = new Spiel();
 
-		Hand h = new Hand();
-		h.addKarte( new Karte( Farbwert.HERZ, Symbolik.ASS ) );
-		h.addKarte( new Karte( Farbwert.KARO, Symbolik.DAME ) );
-		System.out.println( h );
+		Spieler klaus = new Spieler( spiel, "Klaus" );
+		Spieler peter = new Spieler( spiel, "Peter" );
+		Spieler dieter = new Spieler( spiel, "Dieter" );
+		Spieler karl = new Spieler( spiel, "Karl" );
+
+		spiel.addSpieler( klaus );
+		spiel.addSpieler( peter );
+		spiel.addSpieler( dieter );
+		spiel.addSpieler( karl );
+
+		spiel.starten();
 	}
 }

@@ -7,7 +7,7 @@ public class Pausierend extends Zustand {
 	}
 
 	public void pausieren() {
-
+	
 	}
 
 	public void wiederaufnahme() {
