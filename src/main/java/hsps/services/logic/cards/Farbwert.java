@@ -1,5 +1,5 @@
 package hsps.services.logic.cards;
 
 public enum Farbwert {
-	KREUZ, PIK, HERZ, KARO
+    KREUZ, PIK, HERZ, KARO
 }

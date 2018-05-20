@@ -5,50 +5,50 @@ import hsps.services.logic.player.Spieler;
 
 public class Stich {
 
-	private int punktezahl;
-	private Karte[] karten = new Karte[ 4 ];
-	private int kartenAnzahl = 0;
-	private Spieler spieler;
-	private Karte hoechsteKarte;
-	
-	// Setzen des ersten Spielers mit seiner gelegten Karte
-	public Stich( Spieler spieler, Karte karte ) {
-		setSpieler( spieler );
-		addKarte( karte );
-		hoechsteKarte = karte;
-	}
+    private int punktezahl;
+    private Karte[] karten = new Karte[4];
+    private int kartenAnzahl = 0;
+    private Spieler spieler;
+    private Karte hoechsteKarte;
 
-	// Setzen des Spieler, wem der Stich gehoert
-	public void setSpieler( Spieler spieler ) {
-		this.spieler = spieler;
-	}
+    // Setzen des ersten Spielers mit seiner gelegten Karte
+    public Stich(Spieler spieler, Karte karte) {
+        setSpieler(spieler);
+        addKarte(karte);
+        hoechsteKarte = karte;
+    }
 
-	// Rueckgabe des Spielers, wem der Stich gehoert
-	public Spieler getSpieler() {
-		return spieler;
-	}
+    // Rueckgabe des Spielers, wem der Stich gehoert
+    public Spieler getSpieler() {
+        return spieler;
+    }
 
-	// Hinzufuegen einer Karte und direktes Erhoehen der gesamten Punktezahl des
-	// Stichs
-	public void addKarte( Karte karte ) {
-		karten[ kartenAnzahl++ ] = karte;
-		punktezahl += karte.getWertigkeit();
-	}
+    // Setzen des Spieler, wem der Stich gehoert
+    public void setSpieler(Spieler spieler) {
+        this.spieler = spieler;
+    }
 
-	public Karte getErsteKarte() {
-		return karten[ 0 ];
-	}
+    // Hinzufuegen einer Karte und direktes Erhoehen der gesamten Punktezahl des
+    // Stichs
+    public void addKarte(Karte karte) {
+        karten[kartenAnzahl++] = karte;
+        punktezahl += karte.getWertigkeit();
+    }
 
-	public void setHoechsteKarte( Karte hoechsteKarte ) {
-		this.hoechsteKarte = hoechsteKarte;
-	}
-	
-	public Karte getHoechsteKarte() {
-		return hoechsteKarte;
-	}
-	
-	// Rueckgabe der Punktezahl des Stichs
-	public int getPunktezahl() {
-		return punktezahl;
-	}
+    public Karte getErsteKarte() {
+        return karten[0];
+    }
+
+    public Karte getHoechsteKarte() {
+        return hoechsteKarte;
+    }
+
+    public void setHoechsteKarte(Karte hoechsteKarte) {
+        this.hoechsteKarte = hoechsteKarte;
+    }
+
+    // Rueckgabe der Punktezahl des Stichs
+    public int getPunktezahl() {
+        return punktezahl;
+    }
 }

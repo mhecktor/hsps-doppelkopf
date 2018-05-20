@@ -21,7 +21,7 @@ public class DoppelkopfApplication {
             System.out.println("Let´ inspect the beans provided by Spring Boot");
             String[] beanNames = context.getBeanDefinitionNames();
             Arrays.sort(beanNames);
-            for(String beanName : beanNames) {
+            for (String beanName : beanNames) {
                 System.out.println(beanName);
             }
         };
