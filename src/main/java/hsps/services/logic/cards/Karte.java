@@ -1,27 +1,27 @@
-package hsps.services.logic;
+package hsps.services.logic.cards;
 
-// Eventuell kann man noch eine Klasse "DoppelkopfKarte" erstellen und diese dann von "Karte" erben lassen
+import hsps.services.logic.basic.Symbolik;
+
+// TODO Eventuell kann man noch eine Klasse "DoppelkopfKarte" erstellen und diese dann von "Karte" erben lassen
 public class Karte {
-	
+
 	private Symbolik symbolik;
 	private Farbwert farbwert;
 	private int wertigkeit;
 	private boolean trumpf;
-	
+
 	public Karte( Farbwert farbwert, Symbolik symbolik ) {
 		this.symbolik = symbolik;
 		this.farbwert = farbwert;
-			
-		if( farbwert == Farbwert.KARO )
-			trumpf = true;
-		
+
+		if( farbwert == Farbwert.KARO ) trumpf = true;
+
 		switch( symbolik ) {
 			case ASS:
 				wertigkeit = 11;
 				break;
 			case ZEHN:
-				if( farbwert == Farbwert.HERZ )
-					trumpf = true;
+				if( farbwert == Farbwert.HERZ ) trumpf = true;
 				wertigkeit = 10;
 				break;
 			case KOENIG:
@@ -37,25 +37,30 @@ public class Karte {
 				break;
 		}
 	}
-	
+
 	public boolean isTrumpf() {
 		return trumpf;
 	}
-	
+
+	public void setTrumpf( boolean trumpf ) {
+		this.trumpf = trumpf;
+	}
+
 	public int getWertigkeit() {
 		return wertigkeit;
 	}
-	
+
 	public Symbolik getSymbolik() {
 		return symbolik;
 	}
-	
+
 	public Farbwert getFarbwert() {
 		return farbwert;
 	}
-	
+
 	@Override
 	public String toString() {
 		return farbwert + "-" + symbolik;
 	}
+
 }

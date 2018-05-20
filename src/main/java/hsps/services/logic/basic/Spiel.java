@@ -1,11 +1,20 @@
-package hsps.services.logic;
+package hsps.services.logic.basic;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import basic.Subject;
-import rules.NormalRule;
-import rules.Rule;
+import hsps.services.logic.cards.Farbwert;
+import hsps.services.logic.cards.Karte;
+import hsps.services.logic.cards.Zustand;
+import hsps.services.logic.player.Spieler;
+import hsps.services.logic.rules.basic.Armut;
+import hsps.services.logic.rules.basic.KoenigSolo;
+import hsps.services.logic.rules.basic.Rule;
+import hsps.services.logic.rules.basic.Schmeissen;
+import hsps.services.logic.rules.basic.Schweinchen;
+import hsps.services.logic.rules.stich.StichRule;
+import hsps.services.logic.rules.stich.StichRuleNormal;
+import hsps.services.logic.rules.stich.StichRuleZweiteDulle;
 
 public class Spiel extends Subject {
 
@@ -13,8 +22,14 @@ public class Spiel extends Subject {
 	private String spielID;
 
 	private List<Karte> kartenSpiel;
-	
-	// TODO !!! Die Reihenfolge der Regeln ist wichtig
+
+	// Hier wird abgelegt, nach welchen Regeln die Stiche ausgewertet werden
+	// sollen
+	// Die Reihenfolge der Regeln ist wichtig!!! Die speziellen Regeln stehen
+	// ganz vorne
+	private List<StichRule> stichRules;
+
+	// Hier sind die Regeln enthalten, nach den das Spiel gespielt wird
 	private List<Rule> rules;
 
 	private int rundenAnzahl;
@@ -22,19 +37,13 @@ public class Spiel extends Subject {
 	private int anzahlSpieler = 0;
 	private int maxRundenZahl;
 
+	private Zustand aktZustand;
+
 	// Enthaelt den aktuellen Stich der Runde
 	private Stich stich;
 
 	public Spiel() {
-		kartenSpiel = new ArrayList<Karte>();
-		rules = new ArrayList<Rule>();
-		for( int i = 0; i < 2; i++ )
-			for( Symbolik s : Symbolik.values() )
-				for( Farbwert f : Farbwert.values() )
-					kartenSpiel.add( new Karte( f, s ) );
-		maxRundenZahl = kartenSpiel.size() / spielerListe.length;
-		
-		rules.add( new NormalRule() );
+		aktZustand = new Laufend( this );
 	}
 
 	public void addSpieler( Spieler spieler ) {
@@ -52,16 +61,66 @@ public class Spiel extends Subject {
 	public void starten() {
 		if( !checkSpielerAnzahl() ) return;
 
+		// Initialisierungen um das Spiel spaeter leichter neustarten zu koennen
+		initKartenspiel();
+		initSpieler();
+
 		// Zufallsmaessige Verteilung der Karten an die Spieler
 		int kartenAnzahl = kartenSpiel.size();
-
 		int spielerNr = 0;
 		while( kartenAnzahl > 0 ) {
 			spielerListe[ spielerNr ].getHand().addKarte( kartenSpiel.remove( (int) ( Math.random() * kartenAnzahl-- ) ) );
 			spielerNr = ( spielerNr + 1 ) % spielerListe.length;
 		}
 
+		// TODO Die Regeln sollten am besten vorher ausgesucht werden koennen
+		// und anhand der Pruefungen werden dann die Regeln fuer den Stich
+		// hinzugefuegt
+		initRules();
+
 		run();
+	}
+
+	private void initKartenspiel() {
+		kartenSpiel = new ArrayList<Karte>();
+		for( int i = 0; i < 2; i++ )
+			for( Symbolik s : Symbolik.values() )
+				for( Farbwert f : Farbwert.values() )
+					kartenSpiel.add( new Karte( f, s ) );
+		maxRundenZahl = kartenSpiel.size() / spielerListe.length;
+	}
+
+	private void initSpieler() {
+		// Die Karten muessen fuer jeden Spieler geleert werden
+		// Ist fuer einen Neustart leichter
+		for( Spieler s : spielerListe )
+			s.getHand().resetKarten();
+	}
+
+	private void initRules() {
+		rules = new ArrayList<Rule>();
+		stichRules = new ArrayList<StichRule>();
+		// Es wird immer nach den normalen Regeln gespielt
+		// Die speziellste Regel steht ganz vorne
+		stichRules.add( 0, new StichRuleNormal() );
+		stichRules.add( 0, new StichRuleZweiteDulle() );
+
+		rules.add( new Armut() );
+		rules.add( new Schmeissen() );
+		rules.add( new KoenigSolo() );
+		// rules.add( new Pflichtansage() );
+		rules.add( new Schweinchen() );
+
+		// TODO spaeter eventuell ein dynamisches Hinzufuegen der Regeln vor
+		// Beginn
+		// des Spiel
+
+		for( Rule r : rules ) {
+			if( r.test( this ) ) {
+				r.perform();
+			}
+		}
+
 	}
 
 	/*
@@ -79,6 +138,8 @@ public class Spiel extends Subject {
 			Spieler tSpieler = stich.getSpieler();
 			tSpieler.addStich( stich );
 
+			stich = null;
+
 			startPlayer++;
 			rundenAnzahl++;
 		}
@@ -94,16 +155,17 @@ public class Spiel extends Subject {
 			// Falls nicht gueltig, informiere den Spieler erneut, dass er eine
 			// Karte aussuchen solls
 			if( pruefeGueltigkeit( spieler, karte ) ) {
-				spieler.getHand().removeKarte( karte );								
+				spieler.getHand().removeKarte( karte );
 				stich.addKarte( karte );
 
 				// Die Pruefung, wem der Stich gehoert kann eventuell wieder mit
 				// einem Muster vollzogen werden (siehe Notizen)
 				boolean aendereZugehoerigkeit = false;
-				for( Rule r : rules ) {
-					if( r.test( stich, karte ) ) {
+				for( StichRule sr : stichRules ) {
+					if( sr.changeBelonging( stich, karte ) ) {
 						aendereZugehoerigkeit = true;
-					} 
+						break;
+					}
 				}
 
 				if( aendereZugehoerigkeit ) {
@@ -155,7 +217,33 @@ public class Spiel extends Subject {
 	}
 
 	public void beenden() {
+		System.out.println( "Spiel beendet" );
+	}
 
+	public Spieler[] getSpielerliste() {
+		return spielerListe;
+	}
+
+	public List<StichRule> getStichRules() {
+		return stichRules;
+	}
+
+	public void setAktuellerZustand( Zustand zustand ) {
+		this.aktZustand = zustand;
+	}
+
+	// TODO Hier muessen noch Mechanismen eingebaut werden um ein Spiel neu
+	// starten zu koennen
+	public void neustarten() {
+		starten();
+	}
+
+	public void pausieren() {
+		aktZustand.pausieren();
+	}
+
+	public void wiederaufnahme() {
+		aktZustand.wiederaufnahme();
 	}
 
 }

@@ -1,17 +1,19 @@
-package hsps.services.logic;
+package hsps.services.logic.player;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 
-import basic.Observer;
+import hsps.services.logic.basic.Observer;
+import hsps.services.logic.basic.Spiel;
+import hsps.services.logic.basic.Stich;
+import hsps.services.logic.cards.Karte;
 
 public class Spieler extends Observer {
 
 	private String name;
 	private String ip;
-	private Collection<Stich> gesammelteStiche;
-	private boolean reh;
+	private List<Stich> gesammelteStiche;
 	private Hand hand;
 	private Spiel spiel;
 
@@ -30,6 +32,10 @@ public class Spieler extends Observer {
 		spiel.spielzugAusfuehren( this, karte );
 	}
 	
+	public List<Stich> getGesammelteStiche() {
+		return gesammelteStiche;
+	}
+	
 	// Berechnung und Rueckgabe der gesammelten Stichpunkte
 	public int getStichpunkte() {
 		int sum = 0;
@@ -43,14 +49,13 @@ public class Spieler extends Observer {
 		return hand;
 	}
 
-	public boolean isReh() {
-		return hand.isReh();
+	public boolean isRe() {
+		return hand.isRe();
 	}
 	
+	// Die Update-Methode wird vom Spiel aufgerufen, wenn der Spieler eine Karte aussuchen soll
 	@Override
 	public synchronized void update() {
-		// TODO Der Spieler wurde angestupst und soll nun eine Karte auswaehlen
-		
 		System.out.println( "Das sind deine Karten, " + this + ":" );
 		for( int i = 0; i < getHand().getKarten().size(); i++ ) {
 			System.out.print( i + ": " + getHand().getKarten().get( i ) + " - " );

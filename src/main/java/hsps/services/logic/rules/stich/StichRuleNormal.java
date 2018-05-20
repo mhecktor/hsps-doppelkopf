@@ -1,18 +1,16 @@
-package hsps.services.rules;
+package hsps.services.logic.rules.stich;
 
-import logic.Farbwert;
-import logic.Karte;
-import logic.Stich;
-import logic.Symbolik;
+import hsps.services.logic.basic.Stich;
+import hsps.services.logic.basic.Symbolik;
+import hsps.services.logic.cards.Farbwert;
+import hsps.services.logic.cards.Karte;
 
-public class NormalRule implements Rule {
+public class StichRuleNormal implements StichRule {
 
 	/*
 	 * Es wird ueberprueft wem der Stich gehoert
 	 */
-
-	@Override
-	public boolean test( Stich stich, Karte karte ) {
+	public boolean changeBelonging( Stich stich, Karte karte ) {
 		/* Es werden die "False"-Faelle geprueft */
 		// Wenn der Stich eigentlich Trumpf verlangt, aber eine nicht
 		// Trumpf-Karte gelegt wurde
@@ -30,5 +28,4 @@ public class NormalRule implements Rule {
 
 		return true;
 	}
-
 }

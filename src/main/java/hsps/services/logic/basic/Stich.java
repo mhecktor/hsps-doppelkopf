@@ -1,4 +1,7 @@
-package hsps.services.logic;
+package hsps.services.logic.basic;
+
+import hsps.services.logic.cards.Karte;
+import hsps.services.logic.player.Spieler;
 
 public class Stich {
 

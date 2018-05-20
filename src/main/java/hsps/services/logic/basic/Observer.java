@@ -1,4 +1,4 @@
-package hsps.services.basic;
+package hsps.services.logic.basic;
 
 public abstract class Observer {
 	

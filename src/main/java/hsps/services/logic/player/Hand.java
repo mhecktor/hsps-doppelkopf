@@ -1,14 +1,22 @@
-package hsps.services.logic;
+package hsps.services.logic.player;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import hsps.services.logic.basic.Symbolik;
+import hsps.services.logic.cards.Farbwert;
+import hsps.services.logic.cards.Karte;
+
 public class Hand {
 
-	private boolean reh;
+	private boolean re;
 	private List<Karte> karten;
-	
+
 	public Hand() {
+		resetKarten();
+	}
+
+	public void resetKarten() {
 		karten = new LinkedList<Karte>();
 	}
 
@@ -17,16 +25,14 @@ public class Hand {
 	}
 
 	public void addKarte( Karte karte ) {
-		if( karte.getSymbolik() == Symbolik.DAME 
-			&& karte.getFarbwert() == Farbwert.KREUZ )
-			reh = true;
+		if( karte.getSymbolik() == Symbolik.DAME && karte.getFarbwert() == Farbwert.KREUZ ) re = true;
 		karten.add( karte );
 	}
-	
-	public boolean isReh() {
-		return reh;
+
+	public boolean isRe() {
+		return re;
 	}
-	
+
 	public List<Karte> getKarten() {
 		return karten;
 	}

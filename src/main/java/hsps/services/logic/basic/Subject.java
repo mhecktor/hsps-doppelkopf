@@ -1,4 +1,4 @@
-package hsps.services.basic;
+package hsps.services.logic.basic;
 
 import java.util.List;
 import java.util.ArrayList;

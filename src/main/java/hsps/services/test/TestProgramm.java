@@ -1,7 +1,7 @@
 package hsps.services.test;
 
-import logic.Spiel;
-import logic.Spieler;
+import logic.basic.Spiel;
+import logic.player.Spieler;
 
 public class TestProgramm {
 
