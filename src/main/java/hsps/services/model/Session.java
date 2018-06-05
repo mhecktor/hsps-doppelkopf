@@ -5,7 +5,7 @@ public class Session {
     private String name;
     private short player;
 
-    public session() {
+    public Session() {
     }
 
     public long getId() {
