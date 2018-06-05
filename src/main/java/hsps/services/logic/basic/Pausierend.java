@@ -1,18 +1,46 @@
 package hsps.services.logic.basic;
 
-import hsps.services.logic.cards.Zustand;
-
 public class Pausierend extends Zustand {
 
-    public Pausierend(Spiel spiel) {
-        super(spiel);
-    }
+	public Pausierend( Spiel spiel ) {
+		super( spiel );
 
-    public void wiederaufnahme() {
-        spiel.setAktuellerZustand(new Laufend(spiel));
-    }
+		// TODO hier ein muessen die Spieler informiert werden, dass das Spiel
+		// angehalten wurde
+		// spiel.notifyObservers();
+	}
 
-    public void pausieren() {
-        System.out.println("Spiel pausiert bereits!!");
-    }
+	@Override
+	public void initialisieren() {
+		if( Spiel.DEBUG )
+			System.out.println( "Spiel kann nicht initialisiert werden!" );
+	}
+
+	public void wiederaufnehmen() {
+		if( Spiel.DEBUG )
+			System.out.println( "Spiel wird wieder aufgenommen..." );
+		spiel.setAktuellerZustand( new Laufend( spiel ) );
+	}
+
+	public void pausieren() {
+		if( Spiel.DEBUG )
+			System.out.println( "Spiel pausiert bereits!" );
+	}
+
+	@Override
+	public void beenden() {
+		if( Spiel.DEBUG )
+			System.out.println( "Spiel wird beendet..." );
+		spiel.setAktuellerZustand( new Beendend( spiel ) );
+	}
+
+	@Override
+	public State getState() {
+		return State.PAUSIEREND;
+	}
+
+	@Override
+	public String toString() {
+		return getState().toString();
+	}
 }

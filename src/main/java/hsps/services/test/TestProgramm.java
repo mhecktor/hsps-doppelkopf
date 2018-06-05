@@ -1,5 +1,6 @@
 package hsps.services.test;
 
+import hsps.services.exception.AddSpielerException;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.player.Spieler;
 
@@ -14,10 +15,15 @@ public class TestProgramm {
         Spieler dieter = new Spieler(spiel, "Dieter");
         Spieler karl = new Spieler(spiel, "Karl");
 
-        spiel.addSpieler(klaus);
-        spiel.addSpieler(peter);
-        spiel.addSpieler(dieter);
-        spiel.addSpieler(karl);
+        try {
+            spiel.addSpieler(klaus);
+            spiel.addSpieler(peter);
+            spiel.addSpieler(dieter);
+            spiel.addSpieler(karl);
+        } catch (AddSpielerException e) {
+            e.printStackTrace();
+        }
+
 
         spiel.starten();
     }
