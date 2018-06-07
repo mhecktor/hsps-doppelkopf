@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import hsps.services.exception.NotAValidCardException;
+import hsps.services.exception.NotYourTurnException;
 import hsps.services.logic.basic.Observer;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.basic.Stich;
@@ -39,7 +40,7 @@ public class Spieler extends Observer {
 		gesammelteStiche.add( stich );
 	}
 
-	public void karteAusgesucht( Karte karte ) throws NotAValidCardException {
+	public void karteAusgesucht( Karte karte ) throws NotAValidCardException, NotYourTurnException {
 		spiel.spielzugAusfuehren( this, karte );
 	}
 

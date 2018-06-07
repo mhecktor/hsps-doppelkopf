@@ -1,6 +1,7 @@
 package hsps.services;
 
 import hsps.services.exception.NotAValidCardException;
+import hsps.services.exception.NotYourTurnException;
 import hsps.services.exception.YouDontHaveThatCardException;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.cards.Karte;
@@ -32,7 +33,7 @@ public class PlayerController {
     }
 
     @RequestMapping("/playCard")
-    public void playCard(@PathVariable("gameId") String gameId, @PathVariable("playerId") String playerId, @RequestBody() Karte card) throws NotAValidCardException, YouDontHaveThatCardException {
+    public void playCard(@PathVariable("gameId") String gameId, @PathVariable("playerId") String playerId, @RequestBody() Karte card) throws NotAValidCardException, YouDontHaveThatCardException, NotYourTurnException {
         Spiel game = sessionController.session(gameId);
         Spieler player = Arrays.asList(game.getSpielerliste())
                 .stream()

@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import hsps.services.exception.AddSpielerException;
 import hsps.services.exception.NotAValidCardException;
+import hsps.services.exception.NotYourTurnException;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.player.Spieler;
 import hsps.services.logic.rules.basic.Rule;
@@ -49,6 +50,10 @@ public class Spiel extends Subject {
 	public Spiel( String spielID ) {
 		this.spielID = spielID;
 		aktZustand = new Initialisierend( this );
+	}
+
+	public Spieler getCurrent() {
+		return spielerListe[ ( startPlayer + round ) % spielerListe.length ];
 	}
 
 	public void addSpieler( Spieler spieler ) throws AddSpielerException {
@@ -101,7 +106,10 @@ public class Spiel extends Subject {
 	}
 
 	// Wird vom Spieler aufgerufen mit der ausgewaehlten Karte
-	public void spielzugAusfuehren( Spieler spieler, Karte karte ) throws NotAValidCardException {
+	public void spielzugAusfuehren( Spieler spieler, Karte karte ) throws NotAValidCardException, NotYourTurnException {
+		if(getCurrent() != spieler) {
+			throw new NotYourTurnException();
+		}
 		if( stich == null ) {
 			stich = new Stich( spieler, karte );
 		} else {
