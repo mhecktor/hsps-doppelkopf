@@ -1,3 +1,5 @@
+package hsps.services;
+
 import hsps.services.logic.basic.Spiel;
 import org.springframework.web.bind.annotation.*;
 

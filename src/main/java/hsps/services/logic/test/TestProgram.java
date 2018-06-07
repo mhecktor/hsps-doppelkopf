@@ -7,6 +7,7 @@ import hsps.services.logic.player.Spieler;
 public class TestProgram {
 
 	public static void main( String[] args ) {
+		// TODO in REST endpunkte umwandeln
 		Spiel spiel = new Spiel( "Testspiel" );
 
 		Spieler karl = new Spieler( spiel, "Karl" );

@@ -1,255 +1,212 @@
 package hsps.services.logic.basic;
 
-import hsps.services.logic.cards.Farbwert;
-import hsps.services.logic.cards.Karte;
-import hsps.services.logic.cards.Zustand;
-import hsps.services.logic.player.Spieler;
-import hsps.services.logic.rules.basic.*;
-import hsps.services.logic.rules.stich.StichRule;
-import hsps.services.logic.rules.stich.StichRuleNormal;
-import hsps.services.logic.rules.stich.StichRuleZweiteDulle;
-
-import java.util.ArrayList;
 import java.util.List;
+
+import hsps.services.exception.AddSpielerException;
+import hsps.services.logic.cards.Karte;
+import hsps.services.logic.player.Spieler;
+import hsps.services.logic.rules.basic.Rule;
+import hsps.services.logic.rules.stich.StichRule;
 
 public class Spiel extends Subject {
 
-    // spielId ist entsprechend dem Namen
-    private String spielId;
+	public final static boolean DEBUG = true;
 
-    private List<Karte> kartenSpiel;
+	// spielID ist entsprechend dem Namen
+	private String spielID;
 
-    // Hier wird abgelegt, nach welchen Regeln die Stiche ausgewertet werden
-    // sollen
-    // Die Reihenfolge der Regeln ist wichtig!!! Die speziellen Regeln stehen
-    // ganz vorne
-    private List<StichRule> stichRules;
+	protected List<Karte> kartenSpiel;
 
-    // Hier sind die Regeln enthalten, nach den das Spiel gespielt wird
-    private List<Rule> rules;
+	// Hier wird abgelegt, nach welchen Regeln die Stiche ausgewertet werden
+	// sollen
+	// Die Reihenfolge der Regeln ist wichtig!!! Die speziellen Regeln stehen
+	// ganz vorne
+	protected List<StichRule> stichRules;
 
-    private int rundenAnzahl;
-    private Spieler[] spielerListe = new Spieler[4];
-    private int anzahlSpieler = 0;
-    private int maxRundenZahl;
+	// Hier sind die Regeln enthalten, nach den das Spiel gespielt wird
+	protected List<Rule> rules;
 
-    private Zustand aktZustand;
+	protected int rundenAnzahl;
+	protected Spieler[] spielerListe = new Spieler[ 4 ];
+	protected int anzahlSpieler = 0;
+	protected int maxRundenZahl;
+	protected int startPlayer = 0;
 
-    // Enthaelt den aktuellen Stich der Runde
-    private Stich stich;
+	public Zustand aktZustand;
 
-    public Spiel(String name) {
-        aktZustand = new Laufend(this);
-        this.spielId = name;
-    }
+	// Enthaelt den aktuellen Stich der Runde
+	protected Stich stich;
 
-    public void addSpieler(Spieler spieler) {
-        if (anzahlSpieler < spielerListe.length) spielerListe[anzahlSpieler++] = spieler;
-    }
+	public Spiel( String spielID ) {
+		this.spielID = spielID;
+		aktZustand = new Initialisierend( this );
+	}
 
-    private boolean checkSpielerAnzahl() {
-        return anzahlSpieler == spielerListe.length;
-    }
+	public void addSpieler( Spieler spieler ) throws AddSpielerException {
+		if( aktZustand.getState() == State.INITIALISIEREND ) {
+			if( anzahlSpieler < spielerListe.length ) {
+				spielerListe[ anzahlSpieler++ ] = spieler;
+			} else {
+				throw new AddSpielerException( "Es befinden sich bereits 4 Spieler im Spiel. Der Spieler wurde daher nicht aufgenommen!" );
+			}
+		} else {
+			throw new AddSpielerException( "Das Spiel laeuft bereits. Der Spieler wurde daher nicht mit aufgenommen!" );
+		}
+	}
 
-    /*
-     * Verteilung der Karten aus dem Kartenspiel an die Spieler und starten des
-     * Spiels
-     */
-    public void starten() {
-        if (!checkSpielerAnzahl()) return;
+	/*
+	 * Eigentlicher Spielablauf
+	 * Solange wie Runden spielbar sind, sollen die Spieler einen Zug
+	 * vollfuehren
+	 */
+	// TODO Die Methoden run und getSpielerNr koennten eventuell noch in Laufend
+	// untergebracht werden
+	// Problem hierbei ist aber, dass das Spiel dann aktuell in einem Thread
+	// laufen muss
+	public void run() {
+		while( rundenAnzahl < maxRundenZahl && aktZustand.getState() == State.LAUFEND ) {
+			for( int a = 0; a < spielerListe.length; a++ ) {
+				notifyObserver( spielerListe[ ( startPlayer + a ) % spielerListe.length ] );
+			}
 
-        // Initialisierungen um das Spiel spaeter leichter neustarten zu koennen
-        initKartenspiel();
-        initSpieler();
+			// TODO warten bis alle Spieler ihren Zug gemacht haben
+			Spieler tSpieler = stich.getSpieler();
+			System.out.println( "Der Stich ging an: " + tSpieler + " (" + stich.getHoechsteKarte() + ")" );
+			tSpieler.addStich( stich );
 
-        // Zufallsmaessige Verteilung der Karten an die Spieler
-        int kartenAnzahl = kartenSpiel.size();
-        int spielerNr = 0;
-        while (kartenAnzahl > 0) {
-            spielerListe[spielerNr].getHand().addKarte(kartenSpiel.remove((int) (Math.random() * kartenAnzahl--)));
-            spielerNr = (spielerNr + 1) % spielerListe.length;
-        }
+			stich = null;
 
-        // TODO Die Regeln sollten am besten vorher ausgesucht werden koennen
-        // und anhand der Pruefungen werden dann die Regeln fuer den Stich
-        // hinzugefuegt
-        initRules();
+			startPlayer = getSpielerNr( tSpieler );
+			rundenAnzahl++;
+		}
 
-        run();
-    }
+		if( rundenAnzahl == maxRundenZahl ) beenden();
+	}
 
-    private void initKartenspiel() {
-        kartenSpiel = new ArrayList<Karte>();
-        for (int i = 0; i < 2; i++)
-            for (Symbolik s : Symbolik.values())
-                for (Farbwert f : Farbwert.values())
-                    kartenSpiel.add(new Karte(f, s));
-        maxRundenZahl = kartenSpiel.size() / spielerListe.length;
-    }
+	private int getSpielerNr( Spieler spieler ) {
+		int a = 0;
+		while( spieler != spielerListe[ a ] )
+			a++;
+		return a;
+	}
 
-    private void initSpieler() {
-        // Die Karten muessen fuer jeden Spieler geleert werden
-        // Ist fuer einen Neustart leichter
-        for (Spieler s : spielerListe)
-            s.getHand().resetKarten();
-    }
+	// Wird vom Spieler aufgerufen mit der ausgewaehlten Karte
+	public void spielzugAusfuehren( Spieler spieler, Karte karte ) {
+		if( stich == null ) {
+			stich = new Stich( spieler, karte );
+			
+		} else {
+			// Wenn die Karte gueltig war, dann entferne die Karte aus der Hand
+			// von dem Spieler und pruefe, wem der Stich nun gehoert
+			// Falls nicht gueltig, informiere den Spieler erneut, dass er eine
+			// Karte aussuchen solls
+			if( pruefeGueltigkeit( spieler, karte ) ) {
+				spieler.getHand().removeKarte( karte );
+				stich.addKarte( karte );
 
-    private void initRules() {
-        rules = new ArrayList<Rule>();
-        stichRules = new ArrayList<StichRule>();
-        // Es wird immer nach den normalen Regeln gespielt
-        // Die speziellste Regel steht ganz vorne
-        stichRules.add(0, new StichRuleNormal());
-        stichRules.add(0, new StichRuleZweiteDulle());
+				// Die Pruefung, wem der Stich gehoert kann eventuell wieder mit
+				// einem Muster vollzogen werden (siehe Notizen)
+				boolean aendereZugehoerigkeit = false;
+				for( StichRule sr : stichRules ) {
+					if( sr.changeBelonging( stich, karte ) ) {
+						aendereZugehoerigkeit = true;
+						break;
+					}
+				}
 
-        rules.add(new Armut());
-        rules.add(new Schmeissen());
-        rules.add(new KoenigSolo());
-        // rules.add( new Pflichtansage() );
-        rules.add(new Schweinchen());
+				if( aendereZugehoerigkeit ) {
+					stich.setHoechsteKarte( karte );
+					stich.setSpieler( spieler );
+				}
+			} else {
+				notifyObserver( spieler );
+			}
+		}
+	}
 
-        // TODO spaeter eventuell ein dynamisches Hinzufuegen der Regeln vor
-        // Beginn
-        // des Spiel
+	private boolean pruefeGueltigkeit( Spieler spieler, Karte karte ) {
+		if( stich.getErsteKarte().isTrumpf() ) {
+			if( karte.isTrumpf() ) {
+				return true;
+			} else {
+				for( int i = 0; i < spieler.getHand().getKarten().size(); i++ ) {
+					if( spieler.getHand().getKarten().get( i ).isTrumpf() == true ) { return false; }
+				}
+				return true;
+			}
+		} else {
+			if( karte.isTrumpf() ) {
+				for( int i = 0; i < spieler.getHand().getKarten().size(); i++ ) {
+					if( ( spieler.getHand().getKarten().get( i ).getFarbwert() == stich.getErsteKarte().getFarbwert() ) && ( !spieler.getHand().getKarten().get( i ).isTrumpf() ) ) { return false; }
+				}
+				return true;
 
-        for (Rule r : rules) {
-            if (r.test(this)) {
-                r.perform();
-            }
-        }
+			} else {
+				if( karte.getFarbwert() == stich.getErsteKarte().getFarbwert() ) {
+					return true;
+				} else {
+					for( int i = 0; i < spieler.getHand().getKarten().size(); i++ ) {
+						if( spieler.getHand().getKarten().get( i ).getFarbwert() == stich.getErsteKarte().getFarbwert() ) { return false; }
+					}
+					return true;
+				}
+			}
+		}
+	}
 
-    }
+	public Spieler[] getSpielerliste() {
+		return spielerListe;
+	}
 
-    /*
-     * Eigentlicher Spielablauf
-     * Solange wie Runden spielbar sind, sollen die Spieler einen Zug vollf�hren
-     */
-    public void run() {
-        int startPlayer = 0;
-        while (rundenAnzahl < maxRundenZahl) {
-            for (int a = 0; a < spielerListe.length; a++) {
-                notifyObserver(spielerListe[(startPlayer + a) % spielerListe.length]);
-            }
+	public List<StichRule> getStichRules() {
+		return stichRules;
+	}
 
-            // TODO warten bis alle Spieler ihren Zug gemacht haben
-            Spieler tSpieler = stich.getSpieler();
-            tSpieler.addStich(stich);
+	public void setAktuellerZustand( Zustand zustand ) {
+		if( Spiel.DEBUG ) System.out.println( "Setze Zustand auf " + zustand );
+		this.aktZustand = zustand;
+	}
 
-            stich = null;
+	public void starten() {
+		initialisieren();
+		wiederaufnehmen();
+		run();
+	}
 
-            startPlayer++;
-            rundenAnzahl++;
-        }
-    }
+	public void neustarten() {
+		if( Spiel.DEBUG ) System.out.println( "Spiel wird neugestartet..." );
+		beenden();
+		initialisieren();
+		wiederaufnehmen();
+	}
 
-    // Wird vom Spieler aufgerufen mit der ausgewaehlten Karte
-    public void spielzugAusfuehren(Spieler spieler, Karte karte) {
-        if (stich == null) {
-            stich = new Stich(spieler, karte);
-        } else {
-            // Wenn die Karte gueltig war, dann entferne die Karte aus der Hand
-            // von dem Spieler und pruefe, wem der Stich nun gehoert
-            // Falls nicht gueltig, informiere den Spieler erneut, dass er eine
-            // Karte aussuchen solls
-            if (pruefeGueltigkeit(spieler, karte)) {
-                spieler.getHand().removeKarte(karte);
-                stich.addKarte(karte);
+	/*
+	 * Verteilung der Karten aus dem Kartenspiel an die Spieler und starten des
+	 * Spiels
+	 */
+	public void initialisieren() {
+		aktZustand.initialisieren();
+	}
 
-                // Die Pruefung, wem der Stich gehoert kann eventuell wieder mit
-                // einem Muster vollzogen werden (siehe Notizen)
-                boolean aendereZugehoerigkeit = false;
-                for (StichRule sr : stichRules) {
-                    if (sr.changeBelonging(stich, karte)) {
-                        aendereZugehoerigkeit = true;
-                        break;
-                    }
-                }
+	public void pausieren() {
+		aktZustand.pausieren();
+	}
 
-                if (aendereZugehoerigkeit) {
-                    stich.setHoechsteKarte(karte);
-                    stich.setSpieler(spieler);
-                }
-                System.out.println();
-                System.out.println("--> Spieler " + stich.getSpieler() + " gehört dem Stich");
-                System.out.println();
-            } else {
-                System.out.println();
-                System.out.println("--> Ausgewaehlte Karte war nicht gueltig!!");
-                System.out.println();
-                notifyObserver(spieler);
-            }
-        }
-    }
+	public void wiederaufnehmen() {
+		aktZustand.wiederaufnehmen();
+	}
 
-    // Methode von Schulte
-    private boolean pruefeGueltigkeit(Spieler spieler, Karte karte) {
-        if (stich.getErsteKarte().isTrumpf()) {
-            if (karte.isTrumpf()) {
-                return true;
-            } else {
-                for (int i = 0; i < spieler.getHand().getKarten().size(); i++) {
-                    if (spieler.getHand().getKarten().get(i).isTrumpf() == true) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        } else {
-            if (karte.isTrumpf()) {
-                for (int i = 0; i < spieler.getHand().getKarten().size(); i++) {
-                    if ((spieler.getHand().getKarten().get(i).getFarbwert() == stich.getErsteKarte().getFarbwert()) && (!spieler.getHand().getKarten().get(i).isTrumpf())) {
-                        return false;
-                    }
-                }
-                return true;
+	public void beenden() {
+		aktZustand.beenden();
+	}
 
-            } else {
-                if (karte.getFarbwert() == stich.getErsteKarte().getFarbwert()) {
-                    return true;
-                } else {
-                    for (int i = 0; i < spieler.getHand().getKarten().size(); i++) {
-                        if (spieler.getHand().getKarten().get(i).getFarbwert() == stich.getErsteKarte().getFarbwert()) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            }
-        }
+	@Override
+	public String toString() {
+		return spielID;
+	}
 
-    }
+	public String getSpielId() {
+		return spielID;
+	}
 
-    public void beenden() {
-        System.out.println("Spiel beendet");
-    }
-
-    public Spieler[] getSpielerliste() {
-        return spielerListe;
-    }
-
-    public List<StichRule> getStichRules() {
-        return stichRules;
-    }
-
-    public void setAktuellerZustand(Zustand zustand) {
-        this.aktZustand = zustand;
-    }
-
-    // TODO Hier muessen noch Mechanismen eingebaut werden um ein Spiel neu
-    // starten zu koennen
-    public void neustarten() {
-        starten();
-    }
-
-    public void pausieren() {
-        aktZustand.pausieren();
-    }
-
-    public void wiederaufnahme() {
-        aktZustand.wiederaufnahme();
-    }
-
-    public String getSpielId() {
-        return spielId;
-    }
 }
