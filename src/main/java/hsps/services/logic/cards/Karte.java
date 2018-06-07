@@ -12,8 +12,6 @@ public class Karte {
 	private int wertigkeit;
 	private boolean trumpf;
 	
-	private int reihenfolge;
-
 	public Karte( Farbwert farbwert, Symbolik symbolik ) {
 		this.symbolik = symbolik;
 		this.farbwert = farbwert;

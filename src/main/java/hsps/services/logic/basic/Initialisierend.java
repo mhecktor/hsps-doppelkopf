@@ -2,6 +2,7 @@ package hsps.services.logic.basic;
 
 import java.util.ArrayList;
 
+import hsps.services.MqttService;
 import hsps.services.logic.cards.Farbwert;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.cards.Symbolik;
@@ -14,29 +15,25 @@ import hsps.services.logic.rules.basic.Schweinchen;
 import hsps.services.logic.rules.stich.StichRule;
 import hsps.services.logic.rules.stich.StichRuleNormal;
 import hsps.services.logic.rules.stich.StichRuleZweiteDulle;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
+import hsps.services.mqtt.Topic;
 
 public class Initialisierend extends Zustand {
 
 	public Initialisierend( Spiel spiel ) {
 		super( spiel );
+		
+		MqttService.publisher.publishData( new Message( MessageType.InitGame) );
 	}
 
 	@Override
 	public void initialisieren() {
-		if( !( spiel.anzahlSpieler == spiel.spielerListe.length ) )
-			return;
+		if( !( spiel.anzahlSpieler == spiel.spielerListe.length ) ) return;
 
 		// Initialisierungen um das Spiel spaeter leichter neustarten zu koennen
 		initKartenspiel();
 		initSpieler();
-
-		// Zufallsmaessige Verteilung der Karten an die Spieler
-		int kartenAnzahl = spiel.kartenSpiel.size();
-		int spielerNr = 0;
-		while( kartenAnzahl > 0 ) {
-			spiel.spielerListe[ spielerNr ].getHand().addKarte( spiel.kartenSpiel.remove( (int) ( Math.random() * kartenAnzahl-- ) ) );
-			spielerNr = ( spielerNr + 1 ) % spiel.spielerListe.length;
-		}
 
 		// TODO Die Regeln sollten am besten vorher ausgesucht werden koennen
 		// und anhand der Pruefungen werden dann die Regeln fuer den Stich
@@ -54,21 +51,35 @@ public class Initialisierend extends Zustand {
 
 	@Override
 	public void pausieren() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel kann nicht waehrend der Initialisierung pausiert werden!" );
+		if( Spiel.DEBUG ) System.out.println( "Spiel kann nicht waehrend der Initialisierung pausiert werden!" );
 	}
 
 	@Override
 	public void wiederaufnehmen() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel wird gestartet..." );
+		if( Spiel.DEBUG ) System.out.println( "Spiel wird gestartet..." );
+
+		// Zufallsmaessige Verteilung der Karten an die Spieler
+		int kartenAnzahl = spiel.kartenSpiel.size();
+		int spielerNr = 0;
+		while( kartenAnzahl > 0 ) {
+			Karte k = spiel.kartenSpiel.remove( (int) ( Math.random() * kartenAnzahl-- ) );
+			spiel.spielerListe[ spielerNr ].getHand().addKarte( k );
+
+			// Sende Karte an den Spieler
+			MqttService.publisher.publishData( new Message( MessageType.GetCard, k ), Topic.genPlayerTopic( spielerNr ) );
+
+			spielerNr = ( spielerNr + 1 ) % spiel.spielerListe.length;
+		}
+
+		// Erster Spieler wird informiert, dass dieser jetzt am Zug ist
+		spiel.notifyObserver( spiel.spielerListe[ spiel.startPlayer ] );
+
 		spiel.setAktuellerZustand( new Laufend( spiel ) );
 	}
 
 	@Override
 	public void beenden() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel wird beendet." );
+		if( Spiel.DEBUG ) System.out.println( "Spiel wird beendet." );
 		spiel.setAktuellerZustand( new Beendend( spiel ) );
 		spiel.beenden();
 	}

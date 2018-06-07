@@ -1,38 +1,38 @@
 package hsps.services.logic.basic;
 
+import hsps.services.MqttService;
 import hsps.services.logic.player.Spieler;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
 
 public class Beendend extends Zustand {
 
 	public Beendend( Spiel spiel ) {
 		super( spiel );
 
+		MqttService.publisher.publishData( new Message( MessageType.EndGame ) );
 		auswerten();
 	}
 
 	@Override
 	public void initialisieren() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel wird initialisiert..." );
+		if( Spiel.DEBUG ) System.out.println( "Spiel wird initialisiert..." );
 		spiel.setAktuellerZustand( new Initialisierend( spiel ) );
 	}
 
 	@Override
 	public void pausieren() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel bereits beendet!" );
+		if( Spiel.DEBUG ) System.out.println( "Spiel bereits beendet!" );
 	}
 
 	@Override
 	public void wiederaufnehmen() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel bereits beendet!" );
+		if( Spiel.DEBUG ) System.out.println( "Spiel bereits beendet!" );
 	}
 
 	@Override
 	public void beenden() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel bereits beendet!" );
+		if( Spiel.DEBUG ) System.out.println( "Spiel bereits beendet!" );
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package hsps.services.logic.rules.basic;
 
-import javax.swing.JOptionPane;
-
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.cards.Farbwert;
 import hsps.services.logic.cards.Karte;

@@ -1,16 +1,20 @@
 package hsps.services;
 
-import hsps.services.exception.AddSpielerException;
-import hsps.services.logic.basic.Spiel;
-import hsps.services.logic.player.Hand;
-import hsps.services.logic.player.Spieler;
-import hsps.services.model.CreateGameJson;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import hsps.services.exception.AddSpielerException;
+import hsps.services.logic.basic.Spiel;
+import hsps.services.logic.player.Spieler;
+import hsps.services.model.CreateGameJson;
 
 @RestController
 @RequestMapping("/sessions")

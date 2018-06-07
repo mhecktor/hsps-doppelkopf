@@ -3,6 +3,8 @@ package hsps.services.logic.basic;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import hsps.services.MqttService;
 import hsps.services.exception.AddSpielerException;
 import hsps.services.exception.NotAValidCardException;
 import hsps.services.exception.NotYourTurnException;
@@ -10,6 +12,9 @@ import hsps.services.logic.cards.Karte;
 import hsps.services.logic.player.Spieler;
 import hsps.services.logic.rules.basic.Rule;
 import hsps.services.logic.rules.stich.StichRule;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
+import hsps.services.mqtt.Topic;
 
 public class Spiel extends Subject {
 
@@ -18,18 +23,18 @@ public class Spiel extends Subject {
 	// spielID ist entsprechend dem Namen
 	private String spielID;
 
-    @JsonIgnore
+	@JsonIgnore
 	protected List<Karte> kartenSpiel;
 
 	// Hier wird abgelegt, nach welchen Regeln die Stiche ausgewertet werden
 	// sollen
 	// Die Reihenfolge der Regeln ist wichtig!!! Die speziellen Regeln stehen
 	// ganz vorne
-    @JsonIgnore
+	@JsonIgnore
 	protected List<StichRule> stichRules;
 
 	// Hier sind die Regeln enthalten, nach den das Spiel gespielt wird
-    @JsonIgnore
+	@JsonIgnore
 	protected List<Rule> rules;
 
 	protected int rundenAnzahl;
@@ -39,11 +44,11 @@ public class Spiel extends Subject {
 	protected int maxRundenZahl;
 	protected int startPlayer = 0;
 
-    @JsonIgnore
+	@JsonIgnore
 	public Zustand aktZustand;
 
 	// Enthaelt den aktuellen Stich der Runde
-    @JsonIgnore
+	@JsonIgnore
 	protected Stich stich;
 	private int round = 0;
 
@@ -68,37 +73,7 @@ public class Spiel extends Subject {
 		}
 	}
 
-	/*
-	 * Eigentlicher Spielablauf
-	 * Solange wie Runden spielbar sind, sollen die Spieler einen Zug
-	 * vollfuehren
-	 */
-	// TODO Die Methoden run und getSpielerNr koennten eventuell noch in Laufend
-	// untergebracht werden
-	// Problem hierbei ist aber, dass das Spiel dann aktuell in einem Thread
-	// laufen muss
-	public void run() {
-		while( rundenAnzahl < maxRundenZahl && aktZustand.getState() == State.LAUFEND ) {
-			for( int a = 0; a < spielerListe.length; a++ ) {
-				notifyObserver( spielerListe[ ( startPlayer + a ) % spielerListe.length ] );
-			}
-
-			// TODO warten bis alle Spieler ihren Zug gemacht haben
-			Spieler tSpieler = stich.getSpieler();
-			System.out.println( "Der Stich ging an: " + tSpieler + " (" + stich.getHoechsteKarte() + ")" );
-			tSpieler.addStich( stich );
-
-			stich = null;
-
-			startPlayer = getSpielerNr( tSpieler );
-			rundenAnzahl++;
-		}
-
-		if( rundenAnzahl == maxRundenZahl )
-			beenden();
-	}
-
-	private int getSpielerNr( Spieler spieler ) {
+	public int getSpielerNr( Spieler spieler ) {
 		int a = 0;
 		while( spieler != spielerListe[ a ] )
 			a++;
@@ -107,9 +82,7 @@ public class Spiel extends Subject {
 
 	// Wird vom Spieler aufgerufen mit der ausgewaehlten Karte
 	public void spielzugAusfuehren( Spieler spieler, Karte karte ) throws NotAValidCardException, NotYourTurnException {
-		if(getCurrent() != spieler) {
-			throw new NotYourTurnException();
-		}
+		if( getCurrent() != spieler ) { throw new NotYourTurnException(); }
 		if( stich == null ) {
 			stich = new Stich( spieler, karte );
 		} else {
@@ -134,22 +107,18 @@ public class Spiel extends Subject {
 					stich.setHoechsteKarte( karte );
 					stich.setSpieler( spieler );
 				}
-
-
-
-				// System.out.println();
-				// System.out.println( "--> Spieler " + stich.getSpieler() + "
-				// gehoert dem Stich" );
-				// System.out.println();
 			} else {
-				System.out.println( "!!!--> Ausgewaehlte Karte war nicht gueltig!!" );
+				if( Spiel.DEBUG ) System.out.println( "!!!--> Ausgewaehlte Karte war nicht gueltig!!" );
+				MqttService.publisher.publishData( new Message( MessageType.InvalidCard, karte ), Topic.genPlayerTopic( getSpielerNr( spieler ) ) );
 				notifyObserver( spieler );
 				throw new NotAValidCardException();
 			}
 		}
 		spieler.getHand().removeKarte( karte );
+		MqttService.publisher.publishData( new Message( MessageType.ValidCard, karte ), Topic.genPlayerTopic( getSpielerNr( spieler ) ) );
+		
 		round++;
-		if(round % spielerListe.length == 0) {
+		if( round % spielerListe.length == 0 ) {
 			Spieler tSpieler = stich.getSpieler();
 			System.out.println( "Der Stich ging an: " + tSpieler + " (" + stich.getHoechsteKarte() + ")" );
 			tSpieler.addStich( stich );
@@ -159,8 +128,7 @@ public class Spiel extends Subject {
 			startPlayer = getSpielerNr( tSpieler );
 			round = 0;
 		}
-		// TODO: Async Kommunikation
-		notifyObserver(spielerListe[ ( startPlayer + round ) % spielerListe.length ]);
+		notifyObserver( spielerListe[ ( startPlayer + round ) % spielerListe.length ] );
 	}
 
 	// Methode von Schulte
@@ -203,24 +171,17 @@ public class Spiel extends Subject {
 	}
 
 	public void setAktuellerZustand( Zustand zustand ) {
-		if( Spiel.DEBUG )
-			System.out.println( "Setze Zustand auf " + zustand );
+		if( Spiel.DEBUG ) System.out.println( "Setze Zustand auf " + zustand );
 		this.aktZustand = zustand;
 	}
 
 	public void starten() {
 		initialisieren();
 		wiederaufnehmen();
-		// Ersten Spieler benachrichtigen, dass er eine Karte legen darf
-		notifyObserver(this.spielerListe[this.startPlayer]);
-		System.out.println("Spieler wurde informiert");
-//		run();
-
 	}
 
 	public void neustarten() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel wird neugestartet..." );
+		if( Spiel.DEBUG ) System.out.println( "Spiel wird neugestartet..." );
 		beenden();
 		initialisieren();
 		wiederaufnehmen();
@@ -265,11 +226,6 @@ public class Spiel extends Subject {
 	public Stich getStich() {
 		return stich;
 	}
-
-	/*
-	 * Verteilung der Karten aus dem Kartenspiel an die Spieler und starten des
-	 * Spiels
-	 */
 
 	public void initialisieren() {
 		aktZustand.initialisieren();

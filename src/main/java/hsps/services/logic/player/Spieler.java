@@ -2,15 +2,19 @@ package hsps.services.logic.player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import hsps.services.MqttService;
 import hsps.services.exception.NotAValidCardException;
 import hsps.services.exception.NotYourTurnException;
 import hsps.services.logic.basic.Observer;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.basic.Stich;
 import hsps.services.logic.cards.Karte;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
+import hsps.services.mqtt.Topic;
 
 public class Spieler extends Observer {
 
@@ -18,6 +22,7 @@ public class Spieler extends Observer {
 	private String ip;
 	private List<Stich> gesammelteStiche;
 	private Hand hand;
+	private int spielerNr;
 
 	public String getName() {
 		return name;
@@ -34,6 +39,7 @@ public class Spieler extends Observer {
 		gesammelteStiche = new ArrayList<Stich>();
 		hand = new Hand();
 		statistik = new Statistik();
+		spielerNr = spiel.getSpielerNr( this );
 	}
 
 	public void addStich( Stich stich ) {
@@ -82,6 +88,7 @@ public class Spieler extends Observer {
 	@Override
 	public synchronized void update() {
 		System.out.println(this.getName() + " ist nun an der Reihe!");
+		MqttService.publisher.publishData( new Message( MessageType.YourTurn ), Topic.genPlayerTopic( spielerNr ) );
 		/*System.out.println( "   Das sind deine Karten, " + this + ":" );
 		System.out.print( "      " );
 		for( int i = 0; i < getHand().getKarten().size(); i++ ) {

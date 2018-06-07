@@ -1,10 +1,15 @@
 package hsps.services.logic.basic;
 
+import hsps.services.MqttService;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
+
 public class Laufend extends Zustand {
 
 	public Laufend( Spiel spiel ) {
 		super( spiel );
-		System.out.println( spiel.aktZustand );
+		
+		MqttService.publisher.publishData( new Message( MessageType.ContinueGame) );
 	}
 
 	@Override
@@ -13,11 +18,13 @@ public class Laufend extends Zustand {
 			System.out.println( "Spiel kann nicht initialisiert werden!" );
 	}
 
+	@Override
 	public void wiederaufnehmen() {
 		if( Spiel.DEBUG )
 			System.out.println( "Spiel laeuft bereits!" );
 	}
 
+	@Override
 	public void pausieren() {
 		if( Spiel.DEBUG )
 			System.out.println( "Spiel wird angehalten..." );
