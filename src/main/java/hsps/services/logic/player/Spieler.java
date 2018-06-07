@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hsps.services.exception.NotAValidCardException;
 import hsps.services.logic.basic.Observer;
 import hsps.services.logic.basic.Spiel;
@@ -21,6 +22,7 @@ public class Spieler extends Observer {
 		return name;
 	}
 
+	@JsonIgnore()
 	private Spiel spiel;
 	private Statistik statistik;
 	private boolean solo;

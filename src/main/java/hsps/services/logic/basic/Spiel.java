@@ -110,7 +110,6 @@ public class Spiel extends Subject {
 			// Falls nicht gueltig, informiere den Spieler erneut, dass er eine
 			// Karte aussuchen solls
 			if( pruefeGueltigkeit( spieler, karte ) ) {
-				spieler.getHand().removeKarte( karte );
 				stich.addKarte( karte );
 
 				// Die Pruefung, wem der Stich gehoert kann eventuell wieder mit
@@ -140,6 +139,7 @@ public class Spiel extends Subject {
 				throw new NotAValidCardException();
 			}
 		}
+		spieler.getHand().removeKarte( karte );
 		round++;
 		if(round % spielerListe.length == 0) {
 			Spieler tSpieler = stich.getSpieler();

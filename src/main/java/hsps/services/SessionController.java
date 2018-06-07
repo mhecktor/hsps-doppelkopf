@@ -52,14 +52,18 @@ public class SessionController {
 
     @RequestMapping(value = "/{id}/start", method = RequestMethod.POST)
     public Spiel startGame(@PathVariable("id") String id) {
-        Spiel game = (Spiel) sessions.stream()
-                .filter(x -> x.toString().equals(id))
-                .findFirst()
-                .orElse(null);
+        Spiel game = this.session(id);
 
         if(game != null) {
             game.starten();
         }
+        return game;
+    }
+
+    @RequestMapping(value = "/{id}/pause")
+    public Spiel pauseGame(@PathVariable("id") String id) {
+        Spiel game = this.session(id);
+        game.pausieren();
         return game;
     }
 
@@ -77,18 +81,5 @@ public class SessionController {
         }
 
         return false;
-    }
-
-    @RequestMapping(value = "/{id}/{player}/cards", method = RequestMethod.GET)
-    public Hand getHand(@PathVariable("id") String id, @PathVariable("player") String player) {
-        return Arrays.asList(sessions.stream().filter((x -> x.toString().equals(id)))
-                .findFirst()
-                .orElse(null)
-                .getSpielerliste())
-                .stream()
-                .filter(x -> x.getName().equals(player))
-                .findFirst()
-                .orElse(null)
-                .getHand();
     }
 }

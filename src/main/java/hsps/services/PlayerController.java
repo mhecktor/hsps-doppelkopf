@@ -1,6 +1,7 @@
 package hsps.services;
 
 import hsps.services.exception.NotAValidCardException;
+import hsps.services.exception.YouDontHaveThatCardException;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.player.Hand;
@@ -31,13 +32,30 @@ public class PlayerController {
     }
 
     @RequestMapping("/playCard")
-    public void playCard(@PathVariable("gameId") String gameId, @PathVariable("playerId") String playerId, @RequestBody() Karte card) throws NotAValidCardException {
+    public void playCard(@PathVariable("gameId") String gameId, @PathVariable("playerId") String playerId, @RequestBody() Karte card) throws NotAValidCardException, YouDontHaveThatCardException {
         Spiel game = sessionController.session(gameId);
         Spieler player = Arrays.asList(game.getSpielerliste())
                 .stream()
                 .filter(x -> x.getName().equals(playerId))
                 .findFirst()
                 .orElse(null);
-        game.spielzugAusfuehren(player, card);
+        if(!player
+                .getHand()
+                .getKarten()
+                .stream()
+                .filter(x ->
+                        x.getSymbolik().toString().equals(card.getSymbolik().toString())
+                        && x.getFarbwert().compareTo(card.getFarbwert()) == 0 ).findAny().isPresent()) {
+            throw new YouDontHaveThatCardException();
+        }
+        Karte playersCard = player
+                .getHand()
+                .getKarten()
+                .stream()
+                .filter(x ->
+                        x.getSymbolik().toString().equals(card.getSymbolik().toString())
+                                && x.getFarbwert().compareTo(card.getFarbwert()) == 0 ).findFirst().orElse(null);
+        game.spielzugAusfuehren(player, playersCard);
+        System.out.println(player.getHand().getKarten().size());
     }
 }
