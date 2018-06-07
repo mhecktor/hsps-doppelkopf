@@ -39,7 +39,7 @@ public class Schweinchen implements Rule {
 			if( anzFuechse == 2 ) {
 				// JOptionPane nur Beispielhaft, muss ueber Messaging Service
 				// gemacht werden
-				JOptionPane.showMessageDialog( null, "Spieler: " + s + ", besitzt zwei Karo-Ass Karten und wendet die Regel Schweinchen an." );
+				//JOptionPane.showMessageDialog( null, "Spieler: " + s + ", besitzt zwei Karo-Ass Karten und wendet die Regel Schweinchen an." );
 				return true;
 			}
 

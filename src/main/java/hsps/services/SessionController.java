@@ -10,18 +10,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/sessions")
 public class SessionController {
 
     private List<Spiel> sessions = new ArrayList<>();
 
-    @RequestMapping(value = "/sessions", method = RequestMethod.GET)
-    public List<Spiel> sessions(@RequestParam(name = "name", required = false, defaultValue = "Session") String name) {
-        return sessions;
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public List<Spiel> sessions(@RequestParam(name = "name", required = false, defaultValue = "") String name) {
+        return sessions
+                .stream()
+                .filter(
+                        x -> x.getSpielID()
+                                .contains(name))
+                .collect(Collectors.toList());
     }
 
-    @RequestMapping(value = "/sessions", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public Spiel session(@PathVariable("id") String name) {
+        return sessions
+                .stream()
+                .filter(
+                        x -> x.getSpielID()
+                                .equals(name))
+                .findFirst().orElse(null);
+    }
+
+    @RequestMapping(value = "", method = RequestMethod.POST)
     public Spiel createSession(@RequestBody CreateGameJson createdGame) {
         Spiel newGame = new Spiel(createdGame.getGameName());
         try {
@@ -33,7 +50,7 @@ public class SessionController {
         return newGame;
     }
 
-    @RequestMapping(value = "/sessions/{id}/start", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}/start", method = RequestMethod.POST)
     public Spiel startGame(@PathVariable("id") String id) {
         Spiel game = (Spiel) sessions.stream()
                 .filter(x -> x.toString().equals(id))
@@ -46,7 +63,7 @@ public class SessionController {
         return game;
     }
 
-    @RequestMapping(value = "/sessions/{id}/join", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}/join", method = RequestMethod.POST)
     public boolean joinGame(@PathVariable("id") String id, @RequestBody String name) throws AddSpielerException {
         Spiel game = (Spiel) sessions.stream()
                 .filter(x -> x.toString().equals(id))
@@ -62,7 +79,7 @@ public class SessionController {
         return false;
     }
 
-    @RequestMapping(value = "/sessions/{id}/{player}/cards", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}/{player}/cards", method = RequestMethod.GET)
     public Hand getHand(@PathVariable("id") String id, @PathVariable("player") String player) {
         return Arrays.asList(sessions.stream().filter((x -> x.toString().equals(id)))
                 .findFirst()

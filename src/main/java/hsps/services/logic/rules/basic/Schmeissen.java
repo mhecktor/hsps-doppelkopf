@@ -29,7 +29,8 @@ public class Schmeissen implements Rule {
 			}
 			if( anzKoenige >= 5 ) {
 				// Nochmal genau ueberlegen wie man das machen will.
-				int rueckgabe = JOptionPane.showConfirmDialog( null, "Viele Koenige auf der Hand/n Willst du ( " + s + ") schmeissen?", "Schmeissen", JOptionPane.YES_NO_OPTION );
+				//int rueckgabe = JOptionPane.showConfirmDialog( null, "Viele Koenige auf der Hand/n Willst du ( " + s + ") schmeissen?", "Schmeissen", JOptionPane.YES_NO_OPTION );
+				int rueckgabe = 0;
 				if( rueckgabe == JOptionPane.YES_OPTION ) {
 					return true;
 				} else {

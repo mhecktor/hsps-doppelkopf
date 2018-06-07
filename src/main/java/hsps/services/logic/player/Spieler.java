@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import hsps.services.exception.NotAValidCardException;
 import hsps.services.logic.basic.Observer;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.basic.Stich;
@@ -36,7 +37,7 @@ public class Spieler extends Observer {
 		gesammelteStiche.add( stich );
 	}
 
-	public void karteAusgesucht( Karte karte ) {
+	public void karteAusgesucht( Karte karte ) throws NotAValidCardException {
 		spiel.spielzugAusfuehren( this, karte );
 	}
 
@@ -77,7 +78,8 @@ public class Spieler extends Observer {
 	// aussuchen soll
 	@Override
 	public synchronized void update() {
-		System.out.println( "   Das sind deine Karten, " + this + ":" );
+		System.out.println(this.getName() + " ist nun an der Reihe!");
+		/*System.out.println( "   Das sind deine Karten, " + this + ":" );
 		System.out.print( "      " );
 		for( int i = 0; i < getHand().getKarten().size(); i++ ) {
 			System.out.print( i + ": " + getHand().getKarten().get( i ) + " - " );
@@ -89,7 +91,7 @@ public class Spieler extends Observer {
 		Karte k = getHand().getKarten().get( s.nextInt() );
 		System.out.println( k + " = Ausgesuchte Karte" );
 		System.out.println();
-		karteAusgesucht( k );
+		karteAusgesucht( k );*/
 	}
 
 	@Override

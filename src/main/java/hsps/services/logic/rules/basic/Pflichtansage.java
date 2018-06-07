@@ -37,7 +37,7 @@ public class Pflichtansage implements Rule {
 				if( k.getSymbolik() == Symbolik.DAME && k.getFarbwert() == Farbwert.KREUZ ) {
 					// JOPtionPane nur beispielhaft verwendet muss ueber
 					// Messaging Service gemacht werden
-					JOptionPane.showMessageDialog( null, "Spieler " + spieler + "besitzt eine Kreuz-Dame" );
+					//JOptionPane.showMessageDialog( null, "Spieler " + spieler + "besitzt eine Kreuz-Dame" );
 				}
 			}
 		}

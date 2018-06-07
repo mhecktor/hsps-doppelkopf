@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import hsps.services.exception.AddSpielerException;
+import hsps.services.exception.NotAValidCardException;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.player.Spieler;
 import hsps.services.logic.rules.basic.Rule;
@@ -43,6 +44,7 @@ public class Spiel extends Subject {
 	// Enthaelt den aktuellen Stich der Runde
     @JsonIgnore
 	protected Stich stich;
+	private int round = 0;
 
 	public Spiel( String spielID ) {
 		this.spielID = spielID;
@@ -99,7 +101,7 @@ public class Spiel extends Subject {
 	}
 
 	// Wird vom Spieler aufgerufen mit der ausgewaehlten Karte
-	public void spielzugAusfuehren( Spieler spieler, Karte karte ) {
+	public void spielzugAusfuehren( Spieler spieler, Karte karte ) throws NotAValidCardException {
 		if( stich == null ) {
 			stich = new Stich( spieler, karte );
 		} else {
@@ -125,6 +127,9 @@ public class Spiel extends Subject {
 					stich.setHoechsteKarte( karte );
 					stich.setSpieler( spieler );
 				}
+
+
+
 				// System.out.println();
 				// System.out.println( "--> Spieler " + stich.getSpieler() + "
 				// gehoert dem Stich" );
@@ -132,8 +137,22 @@ public class Spiel extends Subject {
 			} else {
 				System.out.println( "!!!--> Ausgewaehlte Karte war nicht gueltig!!" );
 				notifyObserver( spieler );
+				throw new NotAValidCardException();
 			}
 		}
+		round++;
+		if(round % spielerListe.length == 0) {
+			Spieler tSpieler = stich.getSpieler();
+			System.out.println( "Der Stich ging an: " + tSpieler + " (" + stich.getHoechsteKarte() + ")" );
+			tSpieler.addStich( stich );
+
+			stich = null;
+
+			startPlayer = getSpielerNr( tSpieler );
+			round = 0;
+		}
+		// TODO: Async Kommunikation
+		notifyObserver(spielerListe[ ( startPlayer + round ) % spielerListe.length ]);
 	}
 
 	// Methode von Schulte
@@ -184,6 +203,9 @@ public class Spiel extends Subject {
 	public void starten() {
 		initialisieren();
 		wiederaufnehmen();
+		// Ersten Spieler benachrichtigen, dass er eine Karte legen darf
+		notifyObserver(this.spielerListe[this.startPlayer]);
+		System.out.println("Spieler wurde informiert");
 //		run();
 
 	}

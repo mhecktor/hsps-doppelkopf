@@ -35,7 +35,8 @@ public class KoenigSolo implements Rule {
 				if( anzKoenige >= 5 ) {
 					// JOPtionPane nur Beispielhaft verwendet, besser ueber
 					// scanner o?.
-					int rueckgabe = JOptionPane.showConfirmDialog( null, "Koenigsolo spielen?", "Koenigsolo", JOptionPane.YES_NO_OPTION );
+					//int rueckgabe = JOptionPane.showConfirmDialog( null, "Koenigsolo spielen?", "Koenigsolo", JOptionPane.YES_NO_OPTION );
+					int rueckgabe = 0;
 					if( rueckgabe == JOptionPane.YES_OPTION ) {
 						s.setSolo( true );
 						return true;

@@ -3,6 +3,10 @@ package hsps.services.logic.cards;
 // TODO Eventuell kann man noch eine Klasse "DoppelkopfKarte" erstellen und diese dann von "Karte" erben lassen
 public class Karte {
 
+	public Karte() {
+
+	}
+
 	private Symbolik symbolik;
 	private Farbwert farbwert;
 	private int wertigkeit;

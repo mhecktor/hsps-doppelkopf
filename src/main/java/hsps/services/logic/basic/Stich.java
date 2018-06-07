@@ -1,5 +1,6 @@
 package hsps.services.logic.basic;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.player.Spieler;
 
@@ -8,6 +9,7 @@ public class Stich {
 	private int punktezahl;
 	private Karte[] karten = new Karte[ 4 ];
 	private int kartenAnzahl = 0;
+	@JsonIgnore
 	private Spieler spieler;
 	private Karte hoechsteKarte;
 	
