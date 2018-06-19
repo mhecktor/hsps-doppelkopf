@@ -4,18 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import hsps.services.exception.AddSpielerException;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.player.Spieler;
 import hsps.services.model.CreateGameJson;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/sessions")
 public class SessionController {
