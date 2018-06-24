@@ -23,6 +23,7 @@ public class DatabaseService {
 
 	public static void main( String[] args ) {
 		System.out.println( "== START TEST DATABASESERVICE ==" );
+		sessionFactory = new Configuration().configure().buildSessionFactory();
 
 		DBStatistik dbStatistik = new DBStatistik();
 		List<DBSpieler> dbSpielerliste = new ArrayList<DBSpieler>();

@@ -5,24 +5,35 @@
 
 <hibernate-configuration>
 	<session-factory>
-		<!-- MySQL -->
 		<!-- Oracle -->
-
-
-		<!-- Mapping files -->
+		<property name="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</property>
 		<property name="hibernate.connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+		<!--<property name="hibernate.connection.url">jdbc:oracle:thin:@172.22.112.100:1521:fbpool</property> -->
 		<property name="hibernate.connection.url">jdbc:oracle:thin:@localhost:1521:xe</property>
 		<property name="hibernate.connection.username">system</property>
+		<!--<property name="hibernate.connection.username">C##FBPOOL47</property> -->
 		<property name="hibernate.connection.password">1337</property>
+		<!--<property name="hibernate.connection.password">oracle</property> -->
 		<property name="hibernate.connection.pool_size">10</property>
 		<property name="show_sql">true</property>
-		<property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>
 		<property name="hibernate.hbm2ddl.auto">create</property>
-		<mapping class="hsps.services.hibernate.Statistik"/>
+		<property name="connection.pool_size">1</property>
+
+		<!-- Mapping files -->
+		<mapping class="hsps.services.hibernate.DBStatistik" />
+		<mapping class="hsps.services.hibernate.DBSpieler" />
 		
-		<!-- <mapping resource="buchhandlung.hbm.xml"/> bei Verwendung einer XML-Mappingdatei -->
+		<!-- MySQL ERROR !!!!
+		<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+		<property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/swt2</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">newpassword</property>
+		<property name="dialect">org.hibernate.dialect.MySQLInnoDBDialect</property>
+		<property name="connection.pool_size">1</property>
 
-
-
+		<mapping class="hsps.services.hibernate.DBStatistik" />
+		<mapping class="hsps.services.hibernate.DBSpieler" />
+		-->
 	</session-factory>
 </hibernate-configuration>
