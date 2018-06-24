@@ -1,13 +1,14 @@
-package hsps.services.logic.rules.basic;
+package hsps.services.logic.rules;
 
-import javax.swing.JOptionPane;
-
+import hsps.services.MqttService;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.cards.Farbwert;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.cards.Symbolik;
 import hsps.services.logic.player.Spieler;
 import hsps.services.logic.rules.stich.StichRuleSchweinchen;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
 
 public class Schweinchen implements Rule {
 
@@ -20,15 +21,18 @@ public class Schweinchen implements Rule {
 	 * Dies muss beim Ausspielen angesagt werden.
 	 */
 
-	private int anzFuechse = 0;
+	private int anzFuechse ;
 	private Spiel spiel;
+	private Spieler spieler;
 
 	@Override
 	public boolean test( Spiel spiel ) {
+		anzFuechse = 0;
 		this.spiel = spiel;
 		// Durch die Hand von jedem Spieler Iterieren und Gucken ob einer 2
 		// Karo-Asse Besitzt
-		for( Spieler s : spiel.getSpielerliste() ) {
+		for( Spieler s : spiel.getSpielerListe() ) {
+			this.spieler = s;
 			for( Karte k : s.getHand().getKarten() ) {
 				if( k.getSymbolik() == Symbolik.ASS && k.getFarbwert() == Farbwert.KARO ) {
 					anzFuechse++;
@@ -36,12 +40,7 @@ public class Schweinchen implements Rule {
 			}
 
 			// Sollte jemand zwei Karo-Asse besitzen tritt die Regel in Kraft
-			if( anzFuechse == 2 ) {
-				// JOptionPane nur Beispielhaft, muss ueber Messaging Service
-				// gemacht werden
-				//JOptionPane.showMessageDialog( null, "Spieler: " + s + ", besitzt zwei Karo-Ass Karten und wendet die Regel Schweinchen an." );
-				return true;
-			}
+			if( anzFuechse == 2 ) { return true; }
 
 			anzFuechse = 0;
 		}
@@ -50,6 +49,7 @@ public class Schweinchen implements Rule {
 
 	@Override
 	public void perform() {
+		MqttService.publisher.publishData( new Message( MessageType.Schweinchen, spieler ) );
 		spiel.getStichRules().add( 0, new StichRuleSchweinchen() );
 	}
 

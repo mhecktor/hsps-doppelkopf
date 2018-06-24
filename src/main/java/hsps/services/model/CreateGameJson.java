@@ -6,7 +6,8 @@ public class CreateGameJson {
     private String gameName;
     private String playerName;
     private int rounds;
-
+    private Rules rules;
+    
     public int getRounds() {
         return rounds;
     }
@@ -34,4 +35,12 @@ public class CreateGameJson {
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
+
+	public Rules getRules() {
+		return rules;
+	}
+	 @JsonProperty("rules")
+	public void setRules( Rules rules ) {
+		this.rules = rules;
+	}  
 }

@@ -8,34 +8,29 @@ public class Laufend extends Zustand {
 
 	public Laufend( Spiel spiel ) {
 		super( spiel );
-		
-		MqttService.publisher.publishData( new Message( MessageType.ContinueGame) );
+		MqttService.publisher.publishData( new Message( MessageType.GameRunning ) );
 	}
 
 	@Override
 	public void initialisieren() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel kann nicht initialisiert werden!" );
+		if( Spiel.SYSTEM ) System.out.println( "Spiel kann nicht initialisiert werden!" );
 	}
 
 	@Override
 	public void wiederaufnehmen() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel laeuft bereits!" );
+		if( Spiel.SYSTEM ) System.out.println( "Spiel laeuft bereits!" );
 	}
 
 	@Override
 	public void pausieren() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel wird angehalten..." );
+		if( Spiel.SYSTEM ) System.out.println( "Spiel wird angehalten..." );
 		spiel.setAktuellerZustand( new Pausierend( spiel ) );
 	}
 
 	@Override
 	public void beenden() {
-		if( Spiel.DEBUG )
-			System.out.println( "Spiel wird beendet..." );
-		spiel.setAktuellerZustand( new Pausierend( spiel ) );
+		if( Spiel.SYSTEM ) System.out.println( "Spiel wird beendet..." );
+		spiel.setAktuellerZustand( new Beendend( spiel ) );
 	}
 
 	@Override

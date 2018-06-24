@@ -12,7 +12,7 @@ public class Stich {
 	@JsonIgnore
 	private Spieler spieler;
 	private Karte hoechsteKarte;
-	
+
 	// Setzen des ersten Spielers mit seiner gelegten Karte
 	public Stich( Spieler spieler, Karte karte ) {
 		setSpieler( spieler );
@@ -44,13 +44,15 @@ public class Stich {
 	public void setHoechsteKarte( Karte hoechsteKarte ) {
 		this.hoechsteKarte = hoechsteKarte;
 	}
-	
+
 	public Karte getHoechsteKarte() {
 		return hoechsteKarte;
 	}
-	
+
 	// Rueckgabe der Punktezahl des Stichs
 	public int getPunktezahl() {
+		for( Karte k : karten )
+			punktezahl += k.getWertigkeit();
 		return punktezahl;
 	}
 }

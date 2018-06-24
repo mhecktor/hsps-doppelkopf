@@ -7,7 +7,7 @@ public class Topic {
 	 */
 	public static final String GENERELL = "generell";
 
-	public static String genPlayerTopic( int playerIndex ) {
-		return "player" + playerIndex;
+	public static String genPlayerTopic( String spielID, int playerIndex ) {
+		return spielID + playerIndex;
 	}
 }

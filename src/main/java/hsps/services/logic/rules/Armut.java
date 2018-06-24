@@ -1,10 +1,11 @@
-package hsps.services.logic.rules.basic;
+package hsps.services.logic.rules;
 
+import hsps.services.MqttService;
 import hsps.services.logic.basic.Spiel;
-import hsps.services.logic.basic.Stich;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.player.Spieler;
-import hsps.services.logic.rules.stich.StichRule;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
 
 public class Armut implements Rule {
 	/*
@@ -14,28 +15,32 @@ public class Armut implements Rule {
 	 * auf der Hand hat.
 	 */
 
-	private int anzahlTruempfe = 0;
+	private int anzahlTruempfe;
 	private Spiel spiel;
+	private Spieler spieler;
 
 	@Override
 	public boolean test( Spiel spiel ) {
+		anzahlTruempfe = 0;
 		this.spiel = spiel;
-		for( Spieler s : spiel.getSpielerliste() ) {
+		for( Spieler s : spiel.getSpielerListe() ) {
+			this.spieler = s;
 			for( Karte k : s.getHand().getKarten() ) {
 				if( k.isTrumpf() ) {
 					anzahlTruempfe++;
 				}
 			}
+			if( anzahlTruempfe <= 3 ) {
+				return true;
+			}
 		}
-		if( anzahlTruempfe <= 3 ) {
-			return true;
-		} else
-			return false;
+		return false;
 
 	}
 
 	@Override
 	public void perform() {
+		MqttService.publisher.publishData( new Message( MessageType.Armut, spieler ) );
 		spiel.neustarten();
 	}
 }

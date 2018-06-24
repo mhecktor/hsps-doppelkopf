@@ -1,13 +1,15 @@
-package hsps.services.logic.rules.basic;
+package hsps.services.logic.rules.decision;
 
-import javax.swing.JOptionPane;
-
+import hsps.services.MqttService;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.cards.Symbolik;
 import hsps.services.logic.player.Spieler;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
+import hsps.services.mqtt.Topic;
 
-public class KoenigSolo implements Rule {
+public class KoenigSolo implements DecisionRule {
 
 	/*
 	 * Koenigssolo - da der Koenig absolut keinen Wert hat, kann jemand der
@@ -17,33 +19,22 @@ public class KoenigSolo implements Rule {
 	 * er faire Chancen bekommt.
 	 */
 
-	private int anzKoenige = 0;
+	private int anzKoenige;
 	private Spiel spiel;
+	private Spieler spieler;
 
 	@Override
 	public boolean test( Spiel spiel ) {
+		anzKoenige = 0;
 		this.spiel = spiel;
 		// Durch jede Hand von jedem Spieler Iterieren
-		for( Spieler s : spiel.getSpielerliste() ) {
+		for( Spieler s : spiel.getSpielerListe() ) {
+			this.spieler = s;
 			for( Karte k : s.getHand().getKarten() ) {
 				if( k.getSymbolik() == Symbolik.KOENIG ) {
 					anzKoenige++;
 				}
-				// Wenn Anzahl Koenige >= 5
-				// Zwei Moeglichkeiten fuer den Spieler anbieten
-				// 1. Schmeissen, 2. Koenigssolo
-				if( anzKoenige >= 5 ) {
-					// JOPtionPane nur Beispielhaft verwendet, besser ueber
-					// scanner o?.
-					//int rueckgabe = JOptionPane.showConfirmDialog( null, "Koenigsolo spielen?", "Koenigsolo", JOptionPane.YES_NO_OPTION );
-					int rueckgabe = 0;
-					if( rueckgabe == JOptionPane.YES_OPTION ) {
-						s.setSolo( true );
-						return true;
-					} else {
-						return false;
-					}
-				}
+				if( anzKoenige >= 5 ) { return true; }
 			}
 			anzKoenige = 0;
 		}
@@ -51,10 +42,18 @@ public class KoenigSolo implements Rule {
 	}
 
 	@Override
+	public void inform() {
+		MqttService.publisher.publishData( new Message( MessageType.AskKoenigSolo ), Topic.genPlayerTopic( spiel.getSpielID(), spiel.getSpielerNr( spieler ) ) );
+	}
+
+	@Override
 	public void perform() {
+		MqttService.publisher.publishData( new Message( MessageType.KoenigSolo, spieler ) );
+		spieler.setSolo( true );
+
 		// Durch jede Hand von jedem Spieler Iterieren
 		// und Die Truempfe fuer dieses Spiel aendern
-		for( Spieler spieler : spiel.getSpielerliste() ) {
+		for( Spieler spieler : spiel.getSpielerListe() ) {
 			for( Karte karte : spieler.getHand().getKarten() ) {
 				if( karte.getSymbolik() == Symbolik.KOENIG ) {
 					karte.setTrumpf( false );
@@ -64,5 +63,6 @@ public class KoenigSolo implements Rule {
 			}
 		}
 
+		// spiel.next();
 	}
 }

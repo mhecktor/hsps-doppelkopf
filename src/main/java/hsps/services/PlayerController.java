@@ -22,7 +22,7 @@ public class PlayerController {
     @RequestMapping("/hand")
     public Hand getHand(@PathVariable("gameId") String gameId, @PathVariable("playerId") String playerId) {
         Spiel game = sessionController.session(gameId);
-        return Arrays.asList(game.getSpielerliste())
+        return Arrays.asList(game.getSpielerListe())
                 .stream()
                 .filter(x -> x.getName().equals(playerId))
                 .findFirst()
@@ -33,7 +33,7 @@ public class PlayerController {
     @RequestMapping("/playCard")
     public void playCard(@PathVariable("gameId") String gameId, @PathVariable("playerId") String playerId, @RequestBody() Karte card) throws NotAValidCardException, YouDontHaveThatCardException, NotYourTurnException {
         Spiel game = sessionController.session(gameId);
-        Spieler player = Arrays.asList(game.getSpielerliste())
+        Spieler player = Arrays.asList(game.getSpielerListe())
                 .stream()
                 .filter(x -> x.getName().equals(playerId))
                 .findFirst()
@@ -54,7 +54,9 @@ public class PlayerController {
                 .filter(x ->
                         x.getSymbolik().toString().equals(card.getSymbolik().toString())
                                 && x.getFarbwert().compareTo(card.getFarbwert()) == 0 ).findFirst().orElse(null);
-        game.spielzugAusfuehren(player, playersCard);
+        player.setChosenCard( playersCard );
+        player.performTurn();
+        //game.spielzugAusfuehren(player, playersCard);
         System.out.println(player.getHand().getKarten().size());
     }
 }

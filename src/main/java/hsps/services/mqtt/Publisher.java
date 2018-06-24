@@ -16,6 +16,7 @@ public class Publisher {
 
 	public Publisher() {
 		this( "tcp://localhost:1883" );
+		// this( "tcp://192.168.0.17:1883" );
 	}
 
 	public Publisher( String serverURI ) {
@@ -36,24 +37,24 @@ public class Publisher {
 		}
 	}
 
-	public void publishData( byte[] data ) {
+	public synchronized void publishData( byte[] data ) {
 		publishData( data, Topic.GENERELL );
 	}
 
-	public void publishData( Object arg ) {
+	public synchronized void publishData( Message arg ) {
 		publishData( arg, Topic.GENERELL );
 	}
 
-	public void publishData( Object arg, String topic ) {
+	public synchronized void publishData( Message arg, String topic ) {
 		try {
 			ObjectMapper objMapper = new ObjectMapper();
-			publishData( objMapper.writeValueAsBytes( arg ), topic);
+			publishData( objMapper.writeValueAsBytes( arg ), topic );
 		} catch( JsonProcessingException e ) {
 			e.printStackTrace();
 		}
 	}
 
-	public void publishData( byte[] data, String topic ) {
+	public synchronized void publishData( byte[] data, String topic ) {
 		MqttMessage message = new MqttMessage();
 		try {
 			message.setPayload( data );

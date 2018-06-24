@@ -14,21 +14,22 @@ public class Pausierend extends Zustand {
 
 	@Override
 	public void initialisieren() {
-		if( Spiel.DEBUG ) System.out.println( "Spiel kann nicht initialisiert werden!" );
+		if( Spiel.SYSTEM ) System.out.println( "Spiel kann nicht initialisiert werden!" );
 	}
 
 	public void wiederaufnehmen() {
-		if( Spiel.DEBUG ) System.out.println( "Spiel wird wieder aufgenommen..." );
+		if( Spiel.SYSTEM ) System.out.println( "Spiel wird wieder aufgenommen..." );
 		spiel.setAktuellerZustand( new Laufend( spiel ) );
+		spiel.next();
 	}
 
 	public void pausieren() {
-		if( Spiel.DEBUG ) System.out.println( "Spiel pausiert bereits!" );
+		if( Spiel.SYSTEM ) System.out.println( "Spiel pausiert bereits!" );
 	}
 
 	@Override
 	public void beenden() {
-		if( Spiel.DEBUG ) System.out.println( "Spiel wird beendet..." );
+		if( Spiel.SYSTEM ) System.out.println( "Spiel wird beendet..." );
 		spiel.setAktuellerZustand( new Beendend( spiel ) );
 	}
 
