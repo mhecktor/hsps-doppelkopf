@@ -1,11 +1,11 @@
 package hsps.services.hibernate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -17,34 +17,33 @@ import org.hibernate.annotations.CreationTimestamp;
 public class DBStatistik {
 
 	@Id
-	@GeneratedValue
-	@Column( name = "id" )
-	private int id;
+	@Column( name = "idStatistik" )
+	private int idStatistik;
 
-	@Column( length = 1 )
+	@Column( name = "reGewonnen", length = 1, nullable = false )
 	private char reGewonnen;
 
-	@Column( name = "PunktestandRe" )
+	@Column( name = "PunktestandRe", nullable = false )
 	private int punktestandRe;
 
-	@Column( name = "PunktestandKontra" )
+	@Column( name = "PunktestandKontra", nullable = false )
 	private int punktestandKontra;
 
-	@Column
+	@Column( nullable = false )
 	@CreationTimestamp
 	private LocalDateTime createDateTime;
 
-	@OneToMany( mappedBy = "DBSTATISTIK" )
-	private List<DBSpieler> spielerliste;
+	@OneToMany( mappedBy = "dbStatistik" )
+	private List<DBSpieler> spielerliste = new ArrayList<DBSpieler>();
 
 	public DBStatistik() {}
 
-	public int getId() {
-		return id;
+	public int getIdStatistik() {
+		return idStatistik;
 	}
 
-	public void setId( int id ) {
-		this.id = id;
+	public void setIdStatistik( int idStatistik ) {
+		this.idStatistik = idStatistik;
 	}
 
 	public char getReGewonnen() {

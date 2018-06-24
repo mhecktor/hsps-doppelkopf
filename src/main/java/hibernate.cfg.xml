@@ -8,11 +8,11 @@
 		<!-- Oracle -->
 		<property name="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</property>
 		<property name="hibernate.connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+		<property name="hibernate.connection.url">jdbc:oracle:thin:@localhost:49161:xe</property>
 		<!--<property name="hibernate.connection.url">jdbc:oracle:thin:@172.22.112.100:1521:fbpool</property> -->
-		<property name="hibernate.connection.url">jdbc:oracle:thin:@localhost:1521:xe</property>
 		<property name="hibernate.connection.username">system</property>
 		<!--<property name="hibernate.connection.username">C##FBPOOL47</property> -->
-		<property name="hibernate.connection.password">1337</property>
+		<property name="hibernate.connection.password">oracle</property>
 		<!--<property name="hibernate.connection.password">oracle</property> -->
 		<property name="hibernate.connection.pool_size">10</property>
 		<property name="show_sql">true</property>

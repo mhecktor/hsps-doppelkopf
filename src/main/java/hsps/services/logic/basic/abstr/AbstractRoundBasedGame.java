@@ -150,7 +150,7 @@ public abstract class AbstractRoundBasedGame {
 		aktZustand.beenden();
 	}
 
-	public Zustand getAktZustand() {
+	public synchronized Zustand getAktZustand() {
 		return aktZustand;
 	}
 

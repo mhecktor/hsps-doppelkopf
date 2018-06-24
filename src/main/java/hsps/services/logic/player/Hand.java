@@ -18,6 +18,7 @@ public class Hand {
 
 	public void resetKarten() {
 		karten = new LinkedList<Karte>();
+		re = false;
 	}
 
 	public void removeKarte( Karte karte ) {
@@ -31,6 +32,10 @@ public class Hand {
 
 	public boolean isRe() {
 		return re;
+	}
+	
+	public void setRe( boolean re ) {
+		this.re = re;
 	}
 
 	public List<Karte> getKarten() {

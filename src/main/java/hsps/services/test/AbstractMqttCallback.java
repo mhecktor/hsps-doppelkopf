@@ -15,6 +15,9 @@ public class AbstractMqttCallback implements MqttCallback {
 
 	private int choosenCardIndex = 0;
 
+	public static int counter = 0;
+	public static final int test = (int) ( Math.random() * 200 );
+
 	public AbstractMqttCallback( Subscriber subscriber ) {
 		this.subscriber = subscriber;
 	}
@@ -28,6 +31,14 @@ public class AbstractMqttCallback implements MqttCallback {
 		Spieler spieler = subscriber.getSpieler();
 		ObjectMapper objMapper = new ObjectMapper();
 		Message m = objMapper.readValue( mqttMessage.getPayload(), Message.class );
+
+		counter++;
+		if( counter == test ) {
+			System.err.println( "==> PAUSIERE SPIEL <==" );
+			spieler.pauseGame();
+			Thread.sleep( 2000 );
+			spieler.resumeGame();
+		}
 
 		switch( m.getType() ) {
 			case Announcement:
@@ -53,6 +64,8 @@ public class AbstractMqttCallback implements MqttCallback {
 				TestProgramm.writeKarten( spieler );
 				break;
 			case GameRunning:
+				System.err.println( m.getType() );
+
 				break;
 			case GetCard:
 				break;
@@ -65,12 +78,15 @@ public class AbstractMqttCallback implements MqttCallback {
 				System.err.println( m.getType() );
 				break;
 			case PauseGame:
+				System.err.println( m.getType() );
 				break;
 			case PlayerGotStich:
 				break;
 			case PlayerTopic:
 				break;
 			case RestartGame:
+				System.err.println( m.getType() );
+
 				break;
 			case Schmeissen:
 				System.err.println( m.getType() );

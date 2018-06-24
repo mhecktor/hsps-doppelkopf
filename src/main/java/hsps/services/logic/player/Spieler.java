@@ -25,10 +25,13 @@ public class Spieler extends AbstractSpieler {
 	private Statistik statistik;
 	private boolean solo;
 	private List<Stich> gesammelteStiche;
+	private static int uniqueIdIndex = 0;
+	private int uniqueId;
 
 	private Karte chosenCard;
 
 	public Spieler( Spiel spiel, String name ) {
+		uniqueId = uniqueIdIndex++;
 		this.spiel = spiel;
 		this.name = name;
 		gesammelteStiche = new ArrayList<Stich>();
@@ -36,6 +39,10 @@ public class Spieler extends AbstractSpieler {
 		statistik = new Statistik();
 	}
 
+	public int getUniqueId() {
+		return uniqueId;
+	}
+	
 	public void addStich( Stich stich ) {
 		gesammelteStiche.add( stich );
 	}
@@ -83,6 +90,10 @@ public class Spieler extends AbstractSpieler {
 
 	public boolean isRe() {
 		return hand.isRe();
+	}
+	
+	public void setRe( boolean re ) {
+		hand.setRe( re );
 	}
 
 	public boolean isSolo() {

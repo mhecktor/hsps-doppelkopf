@@ -8,7 +8,6 @@ public class Pausierend extends Zustand {
 
 	public Pausierend( Spiel spiel ) {
 		super( spiel );
-
 		MqttService.publisher.publishData( new Message( MessageType.PauseGame ) );
 	}
 
@@ -20,7 +19,6 @@ public class Pausierend extends Zustand {
 	public void wiederaufnehmen() {
 		if( Spiel.SYSTEM ) System.out.println( "Spiel wird wieder aufgenommen..." );
 		spiel.setAktuellerZustand( new Laufend( spiel ) );
-		spiel.next();
 	}
 
 	public void pausieren() {

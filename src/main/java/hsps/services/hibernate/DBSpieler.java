@@ -2,26 +2,27 @@ package hsps.services.hibernate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table( name = "DBSPIELER" )
+@Table( name = "DBSpieler" )
 public class DBSpieler {
 
 	@Id
-	@GeneratedValue
-	@Column( name = "id" )
+	@Column( name = "idSpieler", nullable = false )
 	private int id;
 
-	@Column( name = "name", length = 20 )
+	@Column( name = "name", length = 20, nullable = false )
 	private String name;
 
+	@Column( name = "re", length = 1, nullable = false )
+	private char re;
+
 	@ManyToOne
-	@JoinColumn( name = "id", nullable = false )
+	@JoinColumn( name = "idStatistik", referencedColumnName = "idStatistik", nullable = false )
 	private DBStatistik dbStatistik;
 
 	public DBSpieler() {}
@@ -40,6 +41,14 @@ public class DBSpieler {
 
 	public void setName( String name ) {
 		this.name = name;
+	}
+
+	public char getRe() {
+		return re;
+	}
+
+	public void setRe( char re ) {
+		this.re = re;
 	}
 
 	public DBStatistik getDbStatistik() {

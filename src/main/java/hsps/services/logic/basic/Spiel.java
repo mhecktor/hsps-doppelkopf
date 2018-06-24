@@ -1,5 +1,6 @@
 package hsps.services.logic.basic;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,10 @@ public class Spiel extends AbstractRoundBasedGame {
 
 	public final static boolean SYSTEM = true;
 	public final static boolean DEBUG = false;
-	public static boolean TESTMODE = true;
+	public static boolean TESTMODE = false;
+
+	@JsonIgnore
+	private int spielIndexId = 0;
 
 	@JsonIgnore
 	protected List<Karte> kartenSpiel;
@@ -420,21 +424,29 @@ public class Spiel extends AbstractRoundBasedGame {
 			}
 		}
 
-		DBStatistik dbStatistik = new DBStatistik();
-		List<DBSpieler> dbSpielerliste = new ArrayList<DBSpieler>();
-		for( Spieler s : spielerListe ) {
-			DBSpieler dbSpieler = new DBSpieler();
-			dbSpieler.setName( s.getName() );
-			dbSpieler.setDbStatistik( dbStatistik );
-			dbSpielerliste.add( dbSpieler );
-			DatabaseService.saveObject( dbSpieler );
-		}
+		saveToDatabase( punkteRe, punkteContra, siegRe );
+	}
 
+	private void saveToDatabase( int punkteRe, int punkteContra, boolean siegRe ) {
+		DBStatistik dbStatistik = new DBStatistik();
+		int tempSpielIndexId = spielIndexId++;
+		dbStatistik.setIdStatistik( tempSpielIndexId );
+		dbStatistik.setCreateDateTime( LocalDateTime.now() );
 		dbStatistik.setPunktestandKontra( punkteContra );
 		dbStatistik.setPunktestandRe( punkteRe );
-		dbStatistik.setSpielerliste( dbSpielerliste );
-
+		dbStatistik.setReGewonnen( siegRe ? 'y' : 'n' );
 		DatabaseService.saveObject( dbStatistik );
+
+		for( Spieler s : spielerListe ) {
+			DBSpieler dbSpieler = new DBSpieler();
+			dbSpieler.setId( s.getUniqueId() );
+			dbSpieler.setName( s.getName() );
+			System.err.println( "--------->" + s.isRe() );
+			dbSpieler.setRe( s.isRe() ? 'y' : 'n' );
+			dbSpieler.setDbStatistik( dbStatistik );
+			dbStatistik.getSpielerliste().add( dbSpieler );
+			DatabaseService.saveObject( dbSpieler );
+		}
 	}
 
 	public void starten() {
