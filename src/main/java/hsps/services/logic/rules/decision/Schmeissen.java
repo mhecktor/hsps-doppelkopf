@@ -40,7 +40,7 @@ public class Schmeissen implements DecisionRule {
 
 	@Override
 	public void inform() {
-		MqttService.publisher.publishData( new Message( MessageType.AskSchmeissen ), Topic.genPlayerTopic( spiel.getSpielID(), spiel.getSpielerNr( this.spieler ) ) );
+		MqttService.publisher.publishData( new Message( MessageType.AskSchmeissen ), Topic.genPlayerTopic( spiel.getSpielID(), spieler.getName() ) );
 	}
 
 	@Override

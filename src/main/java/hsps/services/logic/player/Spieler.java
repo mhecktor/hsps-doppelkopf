@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import hsps.services.MqttService;
+import hsps.services.exception.NotAValidCardException;
 import hsps.services.exception.NotYourTurnException;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.basic.Stich;
@@ -25,13 +26,10 @@ public class Spieler extends AbstractSpieler {
 	private Statistik statistik;
 	private boolean solo;
 	private List<Stich> gesammelteStiche;
-	private static int uniqueIdIndex = 0;
-	private int uniqueId;
 
 	private Karte chosenCard;
 
 	public Spieler( Spiel spiel, String name ) {
-		uniqueId = uniqueIdIndex++;
 		this.spiel = spiel;
 		this.name = name;
 		gesammelteStiche = new ArrayList<Stich>();
@@ -39,10 +37,6 @@ public class Spieler extends AbstractSpieler {
 		statistik = new Statistik();
 	}
 
-	public int getUniqueId() {
-		return uniqueId;
-	}
-	
 	public void addStich( Stich stich ) {
 		gesammelteStiche.add( stich );
 	}
@@ -51,8 +45,14 @@ public class Spieler extends AbstractSpieler {
 		return chosenCard;
 	}
 
-	public void setChosenCard( Karte chosenCard ) {
-		this.chosenCard = chosenCard;
+	public void setChosenCard( Karte chosenCard ) throws NotAValidCardException {
+		if( spiel.pruefeGueltigkeit( this, chosenCard ) ) {
+			MqttService.publisher.publishData( new Message( MessageType.ValidCard, chosenCard ), Topic.genPlayerTopic( spiel.getSpielID(), getName() ) );
+			this.chosenCard = chosenCard;
+		} else {
+			MqttService.publisher.publishData( new Message( MessageType.InvalidCard, chosenCard ), Topic.genPlayerTopic( spiel.getSpielID(), getName() ) );
+			throw new NotAValidCardException();
+		}
 	}
 
 	public void performDecisionRule( boolean arg ) {
@@ -91,7 +91,7 @@ public class Spieler extends AbstractSpieler {
 	public boolean isRe() {
 		return hand.isRe();
 	}
-	
+
 	public void setRe( boolean re ) {
 		hand.setRe( re );
 	}
@@ -122,7 +122,7 @@ public class Spieler extends AbstractSpieler {
 	@Override
 	public void notifyPerformTurn() {
 		if( Spiel.DEBUG ) System.out.println( this.getName() + " soll seine Karte waehlen!" );
-		MqttService.publisher.publishData( new Message( MessageType.ChooseCard ), Topic.genPlayerTopic( spiel.getSpielID(), spiel.getSpielerNr( this ) ) );
+		MqttService.publisher.publishData( new Message( MessageType.ChooseCard ), Topic.genPlayerTopic( spiel.getSpielID(), this.getName() ) );
 	}
 
 	@Override

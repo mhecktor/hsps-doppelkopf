@@ -6,6 +6,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import hsps.services.exception.NotAValidCardException;
 import hsps.services.logic.player.Spieler;
 import hsps.services.mqtt.Message;
 
@@ -57,8 +58,11 @@ public class AbstractMqttCallback implements MqttCallback {
 				spieler.performDecisionRule( true );
 				break;
 			case ChooseCard:
-				spieler.setChosenCard( spieler.getHand().getKarten().get( choosenCardIndex ) );
-				spieler.performTurn();
+				try {
+					spieler.setChosenCard( spieler.getHand().getKarten().get( choosenCardIndex ) );
+				} catch( NotAValidCardException e ) {
+					System.out.print( "e" );
+				}
 				break;
 			case EndedGame:
 				TestProgramm.writeKarten( spieler );
@@ -73,6 +77,11 @@ public class AbstractMqttCallback implements MqttCallback {
 				break;
 			case InvalidCard:
 				choosenCardIndex++;
+				try {
+					spieler.setChosenCard( spieler.getHand().getKarten().get( choosenCardIndex ) );
+				} catch( NotAValidCardException e ) {
+					System.out.print( "e" );
+				}
 				break;
 			case KoenigSolo:
 				System.err.println( m.getType() );
@@ -95,6 +104,7 @@ public class AbstractMqttCallback implements MqttCallback {
 				System.err.println( m.getType() );
 				break;
 			case ValidCard:
+				spieler.performTurn();
 				choosenCardIndex = 0;
 				break;
 			default:

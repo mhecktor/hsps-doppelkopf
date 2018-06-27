@@ -18,12 +18,13 @@ import hsps.services.logic.basic.Spiel;
 public class DatabaseService {
 	// private static SessionFactory sessionFactory;
 	// Dockerfreunde: docker run -d -p 49161:1521 wnameless/oracle-xe-11g
-	private static SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+//	private static SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+	private static SessionFactory sessionFactory;
 
 	@PostConstruct
 	public void init() {
 		if( Spiel.DEBUG ) System.out.println( "Init DatabaseService" );
-		sessionFactory = new Configuration().configure().buildSessionFactory();
+		//sessionFactory = new Configuration().configure().buildSessionFactory();
 	}
 
 	@PreDestroy

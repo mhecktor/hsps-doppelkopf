@@ -9,7 +9,6 @@ import hsps.services.mqtt.Topic;
 /* Subscriber ist der "Client" */
 public class Subscriber {
 
-	private static int listenOn = 0;
 	private Spieler spieler;
 	private MqttClient client;
 
@@ -23,19 +22,19 @@ public class Subscriber {
 		client.connect();
 
 		client.subscribe( Topic.GENERELL );
-		client.subscribe( Topic.genPlayerTopic( "Testspiel", listenOn++ ) );
 	}
 
 	public void disconnect() throws MqttException {
 		client.disconnect();
 	}
-
+	
 	public Spieler getSpieler() {
 		return spieler;
 	}
 
-	public void setSpieler( Spieler spieler ) {
+	public void setSpieler( Spieler spieler ) throws MqttException {
 		this.spieler = spieler;
+		client.subscribe( Topic.genPlayerTopic( "Testspiel", spieler.getName()) );
 	}
 
 }

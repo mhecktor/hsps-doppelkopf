@@ -36,6 +36,7 @@ public class TestProgramm {
 		spiel = new Spiel( "Testspiel" );
 		setRules();
 		for( int i = 0; i < subscribers.size(); i++ ) {
+			// Beispieltopic für einen Spieler (Name: Klaus): TestspielKlaus0
 			subscribers.get( i ).setSpieler( new Spieler( spiel, "Spieler " + i ) );
 		}
 

@@ -43,7 +43,7 @@ public class KoenigSolo implements DecisionRule {
 
 	@Override
 	public void inform() {
-		MqttService.publisher.publishData( new Message( MessageType.AskKoenigSolo ), Topic.genPlayerTopic( spiel.getSpielID(), spiel.getSpielerNr( spieler ) ) );
+		MqttService.publisher.publishData( new Message( MessageType.AskKoenigSolo ), Topic.genPlayerTopic( spiel.getSpielID(), spieler.getName()) );
 	}
 
 	@Override
