@@ -1,21 +1,17 @@
 package hsps.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import hsps.services.exception.AddSpielerException;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.player.Spieler;
 import hsps.services.model.CreateGameJson;
+import hsps.services.mqtt.Message;
+import hsps.services.mqtt.MessageType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -45,14 +41,19 @@ public class SessionController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public Spiel createSession(@RequestBody CreateGameJson createdGame) {
+    public Spiel createSession(@RequestBody CreateGameJson createdGame) throws Exception {
+        if (sessions.stream().filter((x) -> x.getSpielID().equals(createdGame.getGameName())).findAny().isPresent()) {
+            throw new Exception("Spiel existiert bereit");
+        }
         Spiel newGame = new Spiel(createdGame.getGameName());
         try {
+            newGame.setRules(createdGame.getRules());
             newGame.addSpieler(new Spieler(newGame, createdGame.getPlayerName()));
         } catch (AddSpielerException e) {
             e.printStackTrace();
         }
         this.sessions.add(newGame);
+//        MqttService.publisher.publishData(new Message(MessageType.GameCreated, newGame), "/gameCreated");
         return newGame;
     }
 
@@ -60,7 +61,7 @@ public class SessionController {
     public Spiel startGame(@PathVariable("id") String id) {
         Spiel game = this.session(id);
 
-        if(game != null) {
+        if (game != null) {
             game.starten();
         }
         return game;
@@ -80,7 +81,7 @@ public class SessionController {
                 .findFirst()
                 .orElse(null);
 
-        if(game != null) {
+        if (game != null) {
             Spieler a = new Spieler(game, name);
             game.addSpieler(a);
             return true;

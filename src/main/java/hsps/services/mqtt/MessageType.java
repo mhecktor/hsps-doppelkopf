@@ -6,7 +6,7 @@ public enum MessageType {
 	InitGame, GameRunning, EndedGame, PauseGame, RestartGame, ChooseCard, PlayerTopic, GetCard, InvalidCard, ValidCard, PlayerGotStich,
 
 	// Announcement-MessageTypes
-	Announcement, AskReContraAnnouncement,
+	Announcement, AskReContraAnnouncement, PlayerJoinedGame, LastPlayerJoined, CardPlayed,
 	
 	// DecisionRule-MessageTypes
 	AskKoenigSolo, AskSchmeissen,

@@ -1,48 +1,46 @@
 package hsps.services.mqtt;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Message {
 
-	@JsonProperty
-	private MessageType type;
+    @JsonProperty
+    private MessageType type;
 
-	@JsonProperty
-	private byte[] bytes;
+    @JsonProperty
+    private Object data;
 
-	public Message() {}
+    public Message() {
+    }
 
-	public Message( MessageType type ) {
-		this( type, null );
-	}
+    public Message(MessageType type) {
+        this(type, null);
+    }
 
-	public Message( MessageType type, Object arg ) {
-		this.type = type;
-		try {
-			ObjectMapper objMapper = new ObjectMapper();
-			bytes = objMapper.writeValueAsBytes( arg );
-		} catch( JsonProcessingException e ) {
-			e.printStackTrace();
-		}
-	}
+    public Message(MessageType type, Object arg) {
+        this.type = type;
+        this.data = arg;
+    }
 
-	public byte[] getBytes() {
-		return bytes;
-	}
+    public Object getData() {
+        return data;
+    }
 
-	public void setType( MessageType type ) {
-		this.type = type;
-	}
+    public void setData(Object data) {
+        this.data = data;
+    }
 
-	public MessageType getType() {
-		return type;
-	}
+    public void setType(MessageType type) {
+        this.type = type;
+    }
 
-	@Override
-	public String toString() {
-		return type + " : " + bytes;
-	}
+    public MessageType getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return type + " : " + data + " : " + data;
+    }
 
 }

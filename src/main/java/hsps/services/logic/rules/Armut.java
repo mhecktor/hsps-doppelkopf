@@ -1,5 +1,6 @@
 package hsps.services.logic.rules;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hsps.services.MqttService;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.cards.Karte;
@@ -15,7 +16,32 @@ public class Armut implements Rule {
 	 * auf der Hand hat.
 	 */
 
+	public int getAnzahlTruempfe() {
+		return anzahlTruempfe;
+	}
+
+	public void setAnzahlTruempfe(int anzahlTruempfe) {
+		this.anzahlTruempfe = anzahlTruempfe;
+	}
+
+	public Spiel getSpiel() {
+		return spiel;
+	}
+
+	public void setSpiel(Spiel spiel) {
+		this.spiel = spiel;
+	}
+
+	public Spieler getSpieler() {
+		return spieler;
+	}
+
+	public void setSpieler(Spieler spieler) {
+		this.spieler = spieler;
+	}
+
 	private int anzahlTruempfe;
+	@JsonIgnore
 	private Spiel spiel;
 	private Spieler spieler;
 

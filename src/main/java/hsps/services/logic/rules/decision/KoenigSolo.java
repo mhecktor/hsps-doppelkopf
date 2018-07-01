@@ -1,5 +1,6 @@
 package hsps.services.logic.rules.decision;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hsps.services.MqttService;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.cards.Karte;
@@ -20,6 +21,32 @@ public class KoenigSolo implements DecisionRule {
 	 */
 
 	private int anzKoenige;
+
+	public int getAnzKoenige() {
+		return anzKoenige;
+	}
+
+	public void setAnzKoenige(int anzKoenige) {
+		this.anzKoenige = anzKoenige;
+	}
+
+	public Spiel getSpiel() {
+		return spiel;
+	}
+
+	public void setSpiel(Spiel spiel) {
+		this.spiel = spiel;
+	}
+
+	public Spieler getSpieler() {
+		return spieler;
+	}
+
+	public void setSpieler(Spieler spieler) {
+		this.spieler = spieler;
+	}
+
+	@JsonIgnore
 	private Spiel spiel;
 	private Spieler spieler;
 

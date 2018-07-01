@@ -58,7 +58,7 @@ public class Spieler extends AbstractSpieler {
 	public void performDecisionRule( boolean arg ) {
 		if( arg ) spiel.performDecisionRule();
 
-		spiel.next();
+//		spiel.next();
 	}
 
 	public void performDecisionAnnouncement( boolean arg ) {

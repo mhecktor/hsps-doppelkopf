@@ -1,5 +1,6 @@
 package hsps.services.logic.rules;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hsps.services.MqttService;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.cards.Farbwert;
@@ -22,7 +23,33 @@ public class Schweinchen implements Rule {
 	 */
 
 	private int anzFuechse ;
+	@JsonIgnore
 	private Spiel spiel;
+
+	public int getAnzFuechse() {
+		return anzFuechse;
+	}
+
+	public void setAnzFuechse(int anzFuechse) {
+		this.anzFuechse = anzFuechse;
+	}
+
+	public Spiel getSpiel() {
+		return spiel;
+	}
+
+	public void setSpiel(Spiel spiel) {
+		this.spiel = spiel;
+	}
+
+	public Spieler getSpieler() {
+		return spieler;
+	}
+
+	public void setSpieler(Spieler spieler) {
+		this.spieler = spieler;
+	}
+
 	private Spieler spieler;
 
 	@Override

@@ -30,6 +30,7 @@ public class Publisher {
 	public void connect() {
 		try {
 			client.connect();
+			System.out.println("MQTT: Connected");
 		} catch( MqttSecurityException e ) {
 			e.printStackTrace();
 		} catch( MqttException e ) {
@@ -55,6 +56,7 @@ public class Publisher {
 	}
 
 	public synchronized void publishData( byte[] data, String topic ) {
+		System.out.printf("MQTT: Call on %s\n", topic);
 		MqttMessage message = new MqttMessage();
 		try {
 			message.setPayload( data );

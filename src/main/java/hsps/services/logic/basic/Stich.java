@@ -1,16 +1,44 @@
 package hsps.services.logic.basic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import hsps.services.logic.cards.Karte;
 import hsps.services.logic.player.Spieler;
 
 public class Stich {
 
-	private int punktezahl;
+	private int punktezahl = 0;
+
+	public void setPunktezahl(int punktezahl) {
+		this.punktezahl = punktezahl;
+	}
+
+	public Karte[] getKarten() {
+		return karten;
+	}
+
+	public void setKarten(Karte[] karten) {
+		this.karten = karten;
+	}
+
+	public int getKartenAnzahl() {
+		return kartenAnzahl;
+	}
+
+	public void setKartenAnzahl(int kartenAnzahl) {
+		this.kartenAnzahl = kartenAnzahl;
+	}
+
 	private Karte[] karten = new Karte[ 4 ];
 	private int kartenAnzahl = 0;
 	@JsonIgnore
 	private Spieler spieler;
+
+	@JsonProperty("stichBesitzer")
+	public String getStichBesitzer() {
+		return spieler.getName();
+	}
+
 	private Karte hoechsteKarte;
 
 	// Setzen des ersten Spielers mit seiner gelegten Karte
@@ -52,7 +80,8 @@ public class Stich {
 	// Rueckgabe der Punktezahl des Stichs
 	public int getPunktezahl() {
 		for( Karte k : karten )
-			punktezahl += k.getWertigkeit();
+			if(k != null)
+				punktezahl += k.getWertigkeit();
 		return punktezahl;
 	}
 }
