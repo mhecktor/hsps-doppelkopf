@@ -122,6 +122,8 @@ public class Spiel extends AbstractRoundBasedGame {
         decisionRuleIndex = 0;
         ruleIndex = 0;
         decisionAnnouncementIndex = 0;
+        startPlayer = 0;
+        playerTurns = 0;
     }
 
     @Override
@@ -246,7 +248,7 @@ public class Spiel extends AbstractRoundBasedGame {
             currentRoundIndex++;
             Spieler tSpieler = stich.getSpieler();
             tSpieler.addStich(stich);
-            MqttService.publisher.publishData( new Message( MessageType.PlayerGotStich, tSpieler.getName()), String.format("/%s/playerGotStich", this.spielID)) ;
+            MqttService.publisher.publishData(new Message(MessageType.PlayerGotStich, tSpieler.getName()), String.format("/%s/playerGotStich", this.spielID));
             stich = null;
             startPlayer = getSpielerNr(tSpieler);
             playerTurns = 0;
@@ -300,7 +302,7 @@ public class Spiel extends AbstractRoundBasedGame {
                 MqttService.publisher.publishData(new Message(MessageType.PlayerJoinedGame, spieler.getName()), String.format("/%s/playerJoined", spielID));
                 spielerListe[anzahlSpieler++] = spieler;
                 spielerNamen[anzahlSpieler - 1] = spieler.getName();
-                if( anzahlSpieler == 4) {
+                if (anzahlSpieler == 4) {
                     MqttService.publisher.publishData(new Message(MessageType.LastPlayerJoined, spieler.getName()), String.format("/%s/lastPlayerJoined", spielID));
                 }
             } else {
@@ -433,6 +435,7 @@ public class Spiel extends AbstractRoundBasedGame {
         if (Spiel.SYSTEM) System.out.println("Spiel wird neugestartet...");
         MqttService.publisher.publishData(new Message(MessageType.RestartGame));
         gameState = AbstractGameState.RestartingGame;
+        next();
     }
 
     public List<Karte> getKartenSpiel() {
