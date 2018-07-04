@@ -16,7 +16,6 @@ public class AbstractMqttCallback implements MqttCallback {
 
 	private int choosenCardIndex = 0;
 
-	public static int counter = 0;
 	public static final int test = (int) ( Math.random() * 200 );
 
 	public AbstractMqttCallback( Subscriber subscriber ) {
@@ -33,14 +32,6 @@ public class AbstractMqttCallback implements MqttCallback {
 		ObjectMapper objMapper = new ObjectMapper();
 		Message m = objMapper.readValue( mqttMessage.getPayload(), Message.class );
 
-		counter++;
-		if( counter == test ) {
-			System.err.println( "==> PAUSIERE SPIEL <==" );
-			spieler.pauseGame();
-			Thread.sleep( 2000 );
-			spieler.resumeGame();
-		}
-
 		switch( m.getType() ) {
 			case Announcement:
 				break;
@@ -49,7 +40,7 @@ public class AbstractMqttCallback implements MqttCallback {
 				break;
 			case AskKoenigSolo:
 				System.err.println( m.getType() );
-				spieler.performDecisionRule( false );
+				spieler.performDecisionRule( true );
 				break;
 			case AskReContraAnnouncement:
 				break;
@@ -66,6 +57,7 @@ public class AbstractMqttCallback implements MqttCallback {
 				break;
 			case EndedGame:
 				TestProgramm.writeKarten( spieler );
+				System.out.println( "Ende" );
 				break;
 			case GameRunning:
 				System.err.println( m.getType() );
@@ -95,7 +87,6 @@ public class AbstractMqttCallback implements MqttCallback {
 				break;
 			case RestartGame:
 				System.err.println( m.getType() );
-
 				break;
 			case Schmeissen:
 				System.err.println( m.getType() );
@@ -106,6 +97,18 @@ public class AbstractMqttCallback implements MqttCallback {
 			case ValidCard:
 				spieler.performTurn();
 				choosenCardIndex = 0;
+				break;
+			case CardPlayed:
+				break;
+			case LOSE:
+				System.out.println( spieler.getName() + ": " + spieler.isRe() + " => " + m.getType() );
+				break;
+			case LastPlayerJoined:
+				break;
+			case PlayerJoinedGame:
+				break;
+			case WIN:
+				System.out.println( spieler.getName() + ": " + spieler.isRe() + " => " + m.getType() );
 				break;
 			default:
 				break;

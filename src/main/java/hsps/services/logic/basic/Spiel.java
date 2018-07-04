@@ -104,7 +104,6 @@ public class Spiel extends AbstractRoundBasedGame {
     }
 
     // Initialisierungen um das Spiel spaeter leichter neustarten zu koennen
-
     private void resetKartenspiel() {
         kartenSpiel = new ArrayList<Karte>();
         for (int i = 0; i < 2; i++)
@@ -131,18 +130,22 @@ public class Spiel extends AbstractRoundBasedGame {
         resetSpielerkarten();
         resetIndexe();
 
-        int kartenAnzahl = kartenSpiel.size();
-        int spielerNr = 0;
-        while (kartenAnzahl > 0) {
-            Karte k = kartenSpiel.remove((int) (Math.random() * kartenAnzahl--));
-            spielerListe[spielerNr].getHand().addKarte(k);
-
-            // Sende Karte an den Spieler
-            MqttService.publisher.publishData(new Message(MessageType.GetCard, k), Topic.genPlayerTopic(getSpielID(), spielerListe[spielerNr].getName()));
-
-            spielerNr = (spielerNr + 1) % spielerListe.length;
-        }
-
+        if( TESTMODE ) {
+			kartenTestMode();
+			TESTMODE = false;
+		} else {
+	        int kartenAnzahl = kartenSpiel.size();
+	        int spielerNr = 0;
+	        while (kartenAnzahl > 0) {
+	            Karte k = kartenSpiel.remove((int) (Math.random() * kartenAnzahl--));
+	            spielerListe[spielerNr].getHand().addKarte(k);
+	
+	            // Sende Karte an den Spieler
+	            MqttService.publisher.publishData(new Message(MessageType.GetCard, k), Topic.genPlayerTopic(getSpielID(), spielerListe[spielerNr].getName()));
+	
+	            spielerNr = (spielerNr + 1) % spielerListe.length;
+	        }
+		}
         setAktuellerZustand(new Laufend(this));
 
         continueGame = true;
@@ -167,7 +170,6 @@ public class Spiel extends AbstractRoundBasedGame {
                 return;
             }
         }
-
     }
 
     @Override
@@ -192,7 +194,7 @@ public class Spiel extends AbstractRoundBasedGame {
     @Override
     protected void performTurn() {
         Spieler spieler = getCurrentSpieler();
-
+      
         if (stich == null) {
             stich = new Stich(spieler, spieler.getChosenCard());
 
@@ -221,13 +223,10 @@ public class Spiel extends AbstractRoundBasedGame {
                 }
 
                 validCard = true;
-
-                MqttService.publisher.publishData( new Message( MessageType.ValidCard, spieler.getChosenCard() ), Topic.genPlayerTopic( spielID, spieler.getName() ) );
             } else {
                 if (Spiel.DEBUG) System.out.println("!!!--> Ausgewaehlte Karte war nicht gueltig!!!");
 
                 validCard = false;
-                MqttService.publisher.publishData( new Message( MessageType.InvalidCard, spieler.getChosenCard() ), Topic.genPlayerTopic( spielID, spieler.getName() ) );
             }
         }
 
@@ -272,17 +271,14 @@ public class Spiel extends AbstractRoundBasedGame {
         return spielerListe[(startPlayer + playerTurns) % spielerListe.length].getName();
     }
 
-    /*
-     * TODO Beim Erzeugen des Spiels koennen die Regeln gesetzt werden
-     */
     public void setRules(Rules rules) {
         if (rules.isArmut()) this.rules.add(new Armut());
 
         if (rules.isSchweinchen()) this.rules.add(new Schweinchen());
 
-        if (rules.isKoenigsSolo()) this.decisionRules.add(new KoenigSolo());
-
         if (rules.isSchmeissen()) this.decisionRules.add(new Schmeissen());
+
+        if (rules.isKoenigsSolo()) this.decisionRules.add(new KoenigSolo());
 
         if (rules.isPflichtAnsage()) this.announcements.add(new Pflichtansage());
 
@@ -373,33 +369,38 @@ public class Spiel extends AbstractRoundBasedGame {
                 punkteContra += s.getStichpunkte();
             }
         }
+        
+        if( punkteContra < 120)
+        		siegRe = true;
 
-        if (punkteRe > punkteContra) {
-            System.out.println("Re gewinnt");
-            siegRe = true;
-        } else {
-            System.out.println("Contra gewinnt");
-        }
+        if( DEBUG ) 
+        		System.out.println( "Punkte Re: " + punkteRe +" <=> " + "Punkte Contra: " + punkteContra + " => Re gewonnen: " + siegRe );
 
         for (Spieler s : spielerListe) {
             if (s.isRe()) {
                 if (siegRe) {
                     s.getStatistik().setSiege(s.getStatistik().getSiege() + 1);
                     s.getStatistik().setPunkte(s.getStatistik().getPunkte() + 1);
-                } else {
+                    MqttService.publisher.publishData( new Message( MessageType.WIN, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;	
+                } else {	
                     s.getStatistik().setPunkte(s.getStatistik().getPunkte() - 1);
+                    MqttService.publisher.publishData( new Message( MessageType.LOSE, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;	
                 }
             } else {
                 if (!siegRe) {
                     s.getStatistik().setSiege(s.getStatistik().getSiege() + 1);
                     s.getStatistik().setPunkte(s.getStatistik().getPunkte() + 1);
-                } else {
+                    MqttService.publisher.publishData( new Message( MessageType.WIN, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;	
+                } else {	
                     s.getStatistik().setPunkte(s.getStatistik().getPunkte() - 1);
+                    MqttService.publisher.publishData( new Message( MessageType.LOSE, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;	
                 }
             }
+            if( DEBUG )
+            		System.out.println(  s.getName() + "\n\t" + s.getStatistik() );
         }
 
-        saveToDatabase(punkteRe, punkteContra, siegRe);
+        //saveToDatabase(punkteRe, punkteContra, siegRe);
     }
 
     private void saveToDatabase(int punkteRe, int punkteContra, boolean siegRe) {
@@ -413,7 +414,6 @@ public class Spiel extends AbstractRoundBasedGame {
         for (Spieler s : spielerListe) {
             DBSpieler dbSpieler = new DBSpieler();
             dbSpieler.setName(s.getName());
-            System.err.println("--------->" + s.isRe());
             dbSpieler.setRe(s.isRe() ? 'y' : 'n');
             dbSpieler.setDbStatistik(dbStatistik);
             dbStatistik.getSpielerliste().add(dbSpieler);
@@ -432,9 +432,6 @@ public class Spiel extends AbstractRoundBasedGame {
         if (aktZustand.getState() != State.LAUFEND && aktZustand.getState() != State.PAUSIEREND) return;
         if (Spiel.SYSTEM) System.out.println("Spiel wird neugestartet...");
         MqttService.publisher.publishData(new Message(MessageType.RestartGame));
-        // beenden();
-        // initialisieren();
-        // wiederaufnehmen();
         gameState = AbstractGameState.RestartingGame;
     }
 
@@ -477,4 +474,43 @@ public class Spiel extends AbstractRoundBasedGame {
     public Stich getStich() {
         return stich;
     }
+    
+    /* ############### */
+    /*    TESTMODE     */
+    /* ############### */
+    private static boolean TESTMODE = false;
+    
+    private void kartenTestMode() {
+		int kartenAnzahl = kartenSpiel.size();
+		int spielerNr = 0;
+		int kartenAnzahlSpieler1 = 9;
+
+		while( kartenAnzahl > 0 ) {
+			Karte k = kartenSpiel.remove( (int) ( Math.random() * kartenAnzahl-- ) );
+
+			// if( k.getSymbolik() == Symbolik.ASS && k.getFarbwert() ==
+			// Farbwert.KARO ) {
+			// if( !k.isTrumpf() && spielerListe[ 0
+			// ].getHand().getKarten().size() < 10 ) {
+			if( k.getSymbolik() == Symbolik.KOENIG && spielerListe[ 0 ].getHand().getKarten().size() < 10 ) {
+				spielerListe[ 0 ].getHand().addKarte( k );
+
+				MqttService.publisher.publishData( new Message( MessageType.GetCard, k ), Topic.genPlayerTopic( getSpielID(), spielerListe[0].getName() ) );
+				kartenAnzahlSpieler1--;
+			} else {
+				if( spielerListe[ 0 ].getHand().getKarten().size() >= 10 && spielerNr == 0 ) spielerNr++;
+
+				if( kartenAnzahlSpieler1 > 0 && spielerNr == 0 ) {
+					kartenAnzahlSpieler1--;
+					spielerNr++;
+				}
+				spielerListe[ spielerNr ].getHand().addKarte( k );
+				MqttService.publisher.publishData( new Message( MessageType.GetCard, k ), Topic.genPlayerTopic( getSpielID(), spielerListe[spielerNr].getName() ) );
+				spielerNr = ( spielerNr + 1 ) % spielerListe.length;
+			}
+
+		}
+		for( Spieler s : spielerListe )
+			System.out.print( s.getHand().getKarten().size() + " - " );
+	}
 }

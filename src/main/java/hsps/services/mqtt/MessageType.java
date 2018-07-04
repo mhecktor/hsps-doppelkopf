@@ -3,7 +3,7 @@ package hsps.services.mqtt;
 public enum MessageType {
 
 	// Default-MessageTypes
-	InitGame, GameRunning, EndedGame, PauseGame, RestartGame, ChooseCard, PlayerTopic, GetCard, InvalidCard, ValidCard, PlayerGotStich,
+	InitGame, GameRunning, EndedGame, PauseGame, RestartGame, ChooseCard, PlayerTopic, GetCard, InvalidCard, ValidCard, PlayerGotStich, WIN, LOSE, 
 
 	// Announcement-MessageTypes
 	Announcement, AskReContraAnnouncement, PlayerJoinedGame, LastPlayerJoined, CardPlayed,

@@ -9,6 +9,8 @@ public class Statistik {
 	private int solos;
 	private int solosGewonnen;
 
+	public Statistik() {}
+
 	public int getSiege() {
 		return siege;
 	}
@@ -55,6 +57,11 @@ public class Statistik {
 
 	public void setSolosGewonnen( int solosGewonnen ) {
 		this.solosGewonnen = solosGewonnen;
+	}
+
+	@Override
+	public String toString() {
+		return String.format( "[ Siege: %d, Punkte: %d, Fuechse: %d, Solos: %d (davon gewonnen %d), Hochzeiten: %d ]", siege, punkte, fuechse, solos, solosGewonnen, hochzeiten );
 	}
 
 }

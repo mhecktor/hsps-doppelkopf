@@ -79,9 +79,6 @@ public class Stich {
 
 	// Rueckgabe der Punktezahl des Stichs
 	public int getPunktezahl() {
-		for( Karte k : karten )
-			if(k != null)
-				punktezahl += k.getWertigkeit();
 		return punktezahl;
 	}
 }

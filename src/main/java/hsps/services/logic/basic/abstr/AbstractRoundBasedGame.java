@@ -68,7 +68,7 @@ public abstract class AbstractRoundBasedGame {
 			default:
 				break;
 		}
-
+		
 		boolean nextState = testConditions();
 		if( nextState ) {
 			switch( gameState ) {

@@ -58,7 +58,7 @@ public class Spieler extends AbstractSpieler {
 	public void performDecisionRule( boolean arg ) {
 		if( arg ) spiel.performDecisionRule();
 
-//		spiel.next();
+		spiel.next();
 	}
 
 	public void performDecisionAnnouncement( boolean arg ) {
@@ -78,9 +78,8 @@ public class Spieler extends AbstractSpieler {
 
 	public int getStichpunkte() {
 		int sum = 0;
-		for( Stich s : gesammelteStiche ) {
+		for( Stich s : gesammelteStiche )
 			sum += s.getPunktezahl();
-		}
 		return sum;
 	}
 
@@ -116,6 +115,7 @@ public class Spieler extends AbstractSpieler {
 	@Override
 	public void performTurn() throws NotYourTurnException {
 		if( spiel.getCurrentSpieler() != this ) throw new NotYourTurnException();
+		//if( spiel.getCurrentSpieler() != this ) throw new NotYourTurnException( "Antwortender Spieler " + this + " =/= " + spiel.getCurrentSpieler() );
 		spiel.next();
 	}
 
