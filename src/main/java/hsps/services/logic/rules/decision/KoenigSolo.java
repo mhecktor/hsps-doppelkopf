@@ -89,7 +89,5 @@ public class KoenigSolo implements DecisionRule {
 				}
 			}
 		}
-
-		// spiel.next();
 	}
 }

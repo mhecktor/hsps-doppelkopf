@@ -435,7 +435,6 @@ public class Spiel extends AbstractRoundBasedGame {
         if (Spiel.SYSTEM) System.out.println("Spiel wird neugestartet...");
         MqttService.publisher.publishData(new Message(MessageType.RestartGame));
         gameState = AbstractGameState.RestartingGame;
-        next();
     }
 
     public List<Karte> getKartenSpiel() {
@@ -481,7 +480,7 @@ public class Spiel extends AbstractRoundBasedGame {
     /* ############### */
     /*    TESTMODE     */
     /* ############### */
-    private static boolean TESTMODE = false;
+    private static boolean TESTMODE = true;
     
     private void kartenTestMode() {
 		int kartenAnzahl = kartenSpiel.size();
