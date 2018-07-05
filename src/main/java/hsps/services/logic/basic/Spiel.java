@@ -75,7 +75,9 @@ public class Spiel extends AbstractRoundBasedGame {
 
     @JsonIgnore
     public int decisionAnnouncementIndex = 0;
+    @JsonIgnore
     public DecisionAnnouncement currentDecisionAnnouncement;
+    @JsonIgnore
     public List<DecisionAnnouncement> decisionAnnouncements;
 
     protected Stich stich;
