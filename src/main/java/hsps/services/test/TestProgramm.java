@@ -34,7 +34,7 @@ public class TestProgramm {
 			s.init();
 
 		spiel = new Spiel( "Testspiel" );
-		setRules();
+		setRules(spiel);
 		for( int i = 0; i < subscribers.size(); i++ ) {
 			// Beispieltopic für einen Spieler (Name: Klaus): TestspielKlaus0
 			subscribers.get( i ).setSpieler( new Spieler( spiel, "Spieler " + i ) );
@@ -50,7 +50,7 @@ public class TestProgramm {
 		spiel.starten();
 	}
 
-	public static void setRules() {
+	public static void setRules(Spiel spiel) {
 		Rules rules = new Rules();
 		rules.setArmut( true );
 		rules.setKoenigSolo( true );

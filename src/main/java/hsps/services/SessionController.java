@@ -4,21 +4,40 @@ import hsps.services.exception.AddSpielerException;
 import hsps.services.logic.basic.Spiel;
 import hsps.services.logic.player.Spieler;
 import hsps.services.model.CreateGameJson;
+import hsps.services.model.Rules;
 import hsps.services.mqtt.Message;
 import hsps.services.mqtt.MessageType;
+import hsps.services.test.TestProgramm;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/sessions")
 public class SessionController {
 
     private List<Spiel> sessions = new ArrayList<>();
+
+    public final boolean DEBUG = true;
+
+    @PostConstruct
+    public void init() throws AddSpielerException {
+        if(DEBUG) {
+            Spiel demoGame = new Spiel("DEMO");
+            TestProgramm.setRules(demoGame);
+            String[] playerNames = new String[] {"Franz", "Gustav", "Dieter", "Rolf"};
+            for (String playerName : playerNames) {
+                demoGame.addSpieler(new Spieler(demoGame, playerName));
+            }
+            sessions.add(demoGame);
+        }
+    }
+
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<Spiel> sessions(@RequestParam(name = "name", required = false, defaultValue = "") String name) {

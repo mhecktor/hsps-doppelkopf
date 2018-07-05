@@ -44,7 +44,7 @@ public class Stich {
 	// Setzen des ersten Spielers mit seiner gelegten Karte
 	public Stich( Spieler spieler, Karte karte ) {
 		setSpieler( spieler );
-		addKarte( karte );
+		addKarte( karte, spieler.getName());
 		hoechsteKarte = karte;
 	}
 
@@ -60,8 +60,9 @@ public class Stich {
 
 	// Hinzufuegen einer Karte und direktes Erhoehen der gesamten Punktezahl des
 	// Stichs
-	public void addKarte( Karte karte ) {
+	public void addKarte( Karte karte, String playedBy) {
 		karten[ kartenAnzahl++ ] = karte;
+		karte.setPlayedByPlayer(playedBy);
 		punktezahl += karte.getWertigkeit();
 	}
 

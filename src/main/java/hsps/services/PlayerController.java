@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/players/{gameId}/{playerId}")
 public class PlayerController {
@@ -74,6 +74,17 @@ public class PlayerController {
                 .findFirst()
                 .orElse(null);
         player.performDecisionRule(decision);
+    }
+
+    @RequestMapping("/performAnnouncement")
+    public void performAnnouncement(@PathVariable("gameId") String gameId, @PathVariable("playerId") String playerId, @RequestBody() Boolean decision) {
+        Spiel game = sessionController.session(gameId);
+        Spieler player = Arrays.asList(game.getSpielerListe())
+                .stream()
+                .filter(x -> x.getName().equals(playerId))
+                .findFirst()
+                .orElse(null);
+        player.performDecisionAnnouncement(decision);
     }
 
     @RequestMapping(value = "/stichs", method = RequestMethod.GET )

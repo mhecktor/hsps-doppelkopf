@@ -24,7 +24,7 @@ public class DatabaseService {
 	@PostConstruct
 	public void init() {
 		if( Spiel.DEBUG ) System.out.println( "Init DatabaseService" );
-		//sessionFactory = new Configuration().configure().buildSessionFactory();
+		sessionFactory = new Configuration().configure().buildSessionFactory();
 	}
 
 	@PreDestroy

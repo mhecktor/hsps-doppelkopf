@@ -11,6 +11,16 @@ public class Karte {
 	private Farbwert farbwert;
 	private int wertigkeit;
 	private boolean trumpf;
+
+	public String getPlayedByPlayer() {
+		return playedByPlayer;
+	}
+
+	public void setPlayedByPlayer(String playedByPlayer) {
+		this.playedByPlayer = playedByPlayer;
+	}
+
+	private String playedByPlayer;
 	
 	public Karte( Farbwert farbwert, Symbolik symbolik ) {
 		this.symbolik = symbolik;

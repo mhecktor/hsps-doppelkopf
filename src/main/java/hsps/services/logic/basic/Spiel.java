@@ -21,6 +21,7 @@ import hsps.services.logic.rules.Schweinchen;
 import hsps.services.logic.rules.announcements.Announcement;
 import hsps.services.logic.rules.announcements.DecisionAnnouncement;
 import hsps.services.logic.rules.announcements.Pflichtansage;
+import hsps.services.logic.rules.announcements.ReContraAnsage;
 import hsps.services.logic.rules.decision.DecisionRule;
 import hsps.services.logic.rules.decision.KoenigSolo;
 import hsps.services.logic.rules.decision.Schmeissen;
@@ -89,7 +90,7 @@ public class Spiel extends AbstractRoundBasedGame {
         this.decisionRules = new ArrayList<DecisionRule>();
         this.announcements = new ArrayList<Announcement>();
         this.decisionAnnouncements = new ArrayList<DecisionAnnouncement>();
-        // decisionAnnouncements.add( new ReContraAnsage() );
+        decisionAnnouncements.add( new ReContraAnsage() );
 
         stichRules.add(0, new StichRuleNormal());
 
@@ -206,7 +207,7 @@ public class Spiel extends AbstractRoundBasedGame {
             // Falls nicht gueltig, informiere den Spieler erneut, dass er eine
             // Karte aussuchen solls
             if (pruefeGueltigkeit(spieler, spieler.getChosenCard())) {
-                stich.addKarte(spieler.getChosenCard());
+                stich.addKarte(spieler.getChosenCard(), spieler.getName());
 
                 // Die Pruefung, wem der Stich gehoert kann eventuell wieder mit
                 // einem Muster vollzogen werden (siehe Notizen)
@@ -402,7 +403,7 @@ public class Spiel extends AbstractRoundBasedGame {
             		System.out.println(  s.getName() + "\n\t" + s.getStatistik() );
         }
 
-        //saveToDatabase(punkteRe, punkteContra, siegRe);
+        saveToDatabase(punkteRe, punkteContra, siegRe);
     }
 
     private void saveToDatabase(int punkteRe, int punkteContra, boolean siegRe) {
