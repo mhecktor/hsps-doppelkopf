@@ -64,8 +64,7 @@ public class Spieler extends AbstractSpieler {
 	public void performDecisionAnnouncement( boolean arg ) {
 		if( arg )
 			spiel.performDecisionAnnouncement();
-		else
-			spiel.next();
+		spiel.next();
 	}
 
 	public String getName() {

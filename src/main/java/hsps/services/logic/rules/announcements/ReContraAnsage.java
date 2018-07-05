@@ -23,8 +23,7 @@ public class ReContraAnsage extends DecisionAnnouncement {
 
 	@Override
 	public void inform() {
-		MqttService.publisher.publishData( new Message( MessageType.AskReContraAnnouncement, "Re oder Contra ansagen?" ), Topic.genPlayerTopic( spiel.getSpielID(), spieler.getName() ) );
-
+		MqttService.publisher.publishData( new Message( MessageType.AskReContraAnnouncement ), Topic.genPlayerTopic( spiel.getSpielID(), spieler.getName() ) );
 	}
 
 	@Override

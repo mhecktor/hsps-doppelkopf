@@ -1,7 +1,12 @@
 package hsps.services.logic.basic;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import hsps.services.MqttService;
 import hsps.services.exception.AddSpielerException;
 import hsps.services.hibernate.DBSpieler;
@@ -10,6 +15,7 @@ import hsps.services.hibernate.DatabaseService;
 import hsps.services.logic.basic.abstr.AbstractGameState;
 import hsps.services.logic.basic.abstr.AbstractRoundBasedGame;
 import hsps.services.logic.basic.conditions.EndingCondition;
+import hsps.services.logic.basic.conditions.AnsagenCondition;
 import hsps.services.logic.basic.conditions.RuleCondition;
 import hsps.services.logic.cards.Farbwert;
 import hsps.services.logic.cards.Karte;
@@ -32,10 +38,6 @@ import hsps.services.model.Rules;
 import hsps.services.mqtt.Message;
 import hsps.services.mqtt.MessageType;
 import hsps.services.mqtt.Topic;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Spiel extends AbstractRoundBasedGame {
 
@@ -90,7 +92,7 @@ public class Spiel extends AbstractRoundBasedGame {
         this.decisionRules = new ArrayList<DecisionRule>();
         this.announcements = new ArrayList<Announcement>();
         this.decisionAnnouncements = new ArrayList<DecisionAnnouncement>();
-        decisionAnnouncements.add( new ReContraAnsage() );
+        this.decisionAnnouncements.add( new ReContraAnsage() );
 
         stichRules.add(0, new StichRuleNormal());
 
@@ -100,8 +102,7 @@ public class Spiel extends AbstractRoundBasedGame {
     private void initConditions() {
         conditions.add(new RuleCondition(AbstractGameState.PerformGame, this));
         conditions.add(new EndingCondition(AbstractGameState.PostTurn, this));
-        // conditions.add( new PostAnsagenCondition( AbstractGameState.PostTurn,
-        // this ) );
+		conditions.add( new AnsagenCondition( AbstractGameState.PerformGame, this ) );
     }
 
     // Initialisierungen um das Spiel spaeter leichter neustarten zu koennen
@@ -142,10 +143,10 @@ public class Spiel extends AbstractRoundBasedGame {
 	        while (kartenAnzahl > 0) {
 	            Karte k = kartenSpiel.remove((int) (Math.random() * kartenAnzahl--));
 	            spielerListe[spielerNr].getHand().addKarte(k);
-	
+
 	            // Sende Karte an den Spieler
 	            MqttService.publisher.publishData(new Message(MessageType.GetCard, k), Topic.genPlayerTopic(getSpielID(), spielerListe[spielerNr].getName()));
-	
+
 	            spielerNr = (spielerNr + 1) % spielerListe.length;
 	        }
 		}
@@ -160,6 +161,14 @@ public class Spiel extends AbstractRoundBasedGame {
             currentDecisionRule = decisionRules.get(decisionRuleIndex++);
             if (currentDecisionRule.test(this)) {
                 currentDecisionRule.inform();
+                return;
+            }
+        }
+
+        while (decisionAnnouncementIndex < decisionAnnouncements.size()) {
+            currentDecisionAnnouncement = decisionAnnouncements.get(decisionAnnouncementIndex++);
+            if (currentDecisionAnnouncement.test(this)) {
+                currentDecisionAnnouncement.inform();
                 return;
             }
         }
@@ -184,20 +193,12 @@ public class Spiel extends AbstractRoundBasedGame {
     @Override
     protected void preTurn() {
         validCard = true;
-
-        while (decisionAnnouncementIndex < decisionAnnouncements.size()) {
-            currentDecisionAnnouncement = decisionAnnouncements.get(decisionAnnouncementIndex++);
-            if (currentDecisionAnnouncement.test(this)) {
-                currentDecisionAnnouncement.perform();
-                return;
-            }
-        }
     }
 
     @Override
     protected void performTurn() {
         Spieler spieler = getCurrentSpieler();
-      
+
         if (stich == null) {
             stich = new Stich(spieler, spieler.getChosenCard());
 
@@ -372,11 +373,11 @@ public class Spiel extends AbstractRoundBasedGame {
                 punkteContra += s.getStichpunkte();
             }
         }
-        
+
         if( punkteContra < 120)
         		siegRe = true;
 
-        if( DEBUG ) 
+        if( DEBUG )
         		System.out.println( "Punkte Re: " + punkteRe +" <=> " + "Punkte Contra: " + punkteContra + " => Re gewonnen: " + siegRe );
 
         for (Spieler s : spielerListe) {
@@ -384,19 +385,19 @@ public class Spiel extends AbstractRoundBasedGame {
                 if (siegRe) {
                     s.getStatistik().setSiege(s.getStatistik().getSiege() + 1);
                     s.getStatistik().setPunkte(s.getStatistik().getPunkte() + 1);
-                    MqttService.publisher.publishData( new Message( MessageType.WIN, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;	
-                } else {	
+                    MqttService.publisher.publishData( new Message( MessageType.WIN, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;
+                } else {
                     s.getStatistik().setPunkte(s.getStatistik().getPunkte() - 1);
-                    MqttService.publisher.publishData( new Message( MessageType.LOSE, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;	
+                    MqttService.publisher.publishData( new Message( MessageType.LOSE, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;
                 }
             } else {
                 if (!siegRe) {
                     s.getStatistik().setSiege(s.getStatistik().getSiege() + 1);
                     s.getStatistik().setPunkte(s.getStatistik().getPunkte() + 1);
-                    MqttService.publisher.publishData( new Message( MessageType.WIN, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;	
-                } else {	
+                    MqttService.publisher.publishData( new Message( MessageType.WIN, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;
+                } else {
                     s.getStatistik().setPunkte(s.getStatistik().getPunkte() - 1);
-                    MqttService.publisher.publishData( new Message( MessageType.LOSE, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;	
+                    MqttService.publisher.publishData( new Message( MessageType.LOSE, s.getStatistik() ), Topic.genPlayerTopic( getSpielID(), s.getName() )) ;
                 }
             }
             if( DEBUG )
@@ -477,12 +478,12 @@ public class Spiel extends AbstractRoundBasedGame {
     public Stich getStich() {
         return stich;
     }
-    
+
     /* ############### */
     /*    TESTMODE     */
     /* ############### */
     private static boolean TESTMODE = true;
-    
+
     private void kartenTestMode() {
 		int kartenAnzahl = kartenSpiel.size();
 		int spielerNr = 0;
