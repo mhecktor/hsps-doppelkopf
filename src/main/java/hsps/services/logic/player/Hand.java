@@ -34,10 +34,6 @@ public class Hand {
 		return re;
 	}
 	
-	public void setRe( boolean re ) {
-		this.re = re;
-	}
-
 	public List<Karte> getKarten() {
 		return karten;
 	}

@@ -34,6 +34,7 @@ public class AbstractMqttCallback implements MqttCallback {
 
 		switch( m.getType() ) {
 			case Announcement:
+				System.out.println( m.getData() );
 				break;
 			case Armut:
 				System.err.println( m.getType() );
@@ -43,6 +44,8 @@ public class AbstractMqttCallback implements MqttCallback {
 				spieler.performDecisionRule( true );
 				break;
 			case AskReContraAnnouncement:
+				System.out.println( spieler + " => " + m.getType() );
+				spieler.performDecisionAnnouncement( true );
 				break;
 			case AskSchmeissen:
 				System.err.println( m.getType() );

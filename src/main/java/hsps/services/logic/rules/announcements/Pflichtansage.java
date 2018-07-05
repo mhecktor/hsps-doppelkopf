@@ -19,7 +19,7 @@ public class Pflichtansage extends Announcement {
 		this.spiel = spiel;
 
 		if( spiel.getCurrentRoundIndex() == 1 ) {
-			if( spiel.getStich().getPunktezahl() >= 30 ) { return true; }
+			if( spiel.getStich().getPunktezahl() >= 15 ) { return true; }
 		}
 		return false;
 	}

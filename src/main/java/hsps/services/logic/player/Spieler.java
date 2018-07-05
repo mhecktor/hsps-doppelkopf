@@ -62,9 +62,7 @@ public class Spieler extends AbstractSpieler {
 	}
 
 	public void performDecisionAnnouncement( boolean arg ) {
-		if( arg )
-			spiel.performDecisionAnnouncement();
-		spiel.next();
+		if( arg ) spiel.performDecisionAnnouncement();
 	}
 
 	public String getName() {
@@ -89,11 +87,7 @@ public class Spieler extends AbstractSpieler {
 	public boolean isRe() {
 		return hand.isRe();
 	}
-
-	public void setRe( boolean re ) {
-		hand.setRe( re );
-	}
-
+	
 	public boolean isSolo() {
 		return solo;
 	}
@@ -114,7 +108,6 @@ public class Spieler extends AbstractSpieler {
 	@Override
 	public void performTurn() throws NotYourTurnException {
 		if( spiel.getCurrentSpieler() != this ) throw new NotYourTurnException();
-		//if( spiel.getCurrentSpieler() != this ) throw new NotYourTurnException( "Antwortender Spieler " + this + " =/= " + spiel.getCurrentSpieler() );
 		spiel.next();
 	}
 
